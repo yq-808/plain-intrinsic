@@ -1,0 +1,37 @@
+{
+  "symbol": "MSFT",
+  "fetched_at": "2026-03-03T11:54:28.531243",
+  "count": 3,
+  "filings": [
+    {
+      "accessNumber": "0000950170-25-100235",
+      "symbol": "MSFT",
+      "cik": "789019",
+      "form": "10-K",
+      "filedDate": "2025-07-30 00:00:00",
+      "acceptedDate": "2025-07-30 16:11:40",
+      "reportUrl": "https://www.sec.gov/Archives/edgar/data/789019/000095017025100235/msft-20250630.htm",
+      "filingUrl": "https://www.sec.gov/Archives/edgar/data/789019/000095017025100235/0000950170-25-100235-index.html"
+    },
+    {
+      "accessNumber": "0000950170-24-087843",
+      "symbol": "MSFT",
+      "cik": "789019",
+      "form": "10-K",
+      "filedDate": "2024-07-30 00:00:00",
+      "acceptedDate": "2024-07-30 16:06:22",
+      "reportUrl": "https://www.sec.gov/Archives/edgar/data/789019/000095017024087843/msft-20240630.htm",
+      "filingUrl": "https://www.sec.gov/Archives/edgar/data/789019/000095017024087843/0000950170-24-087843-index.html"
+    },
+    {
+      "accessNumber": "0000950170-23-035122",
+      "symbol": "MSFT",
+      "cik": "789019",
+      "form": "10-K",
+      "filedDate": "2023-07-27 00:00:00",
+      "acceptedDate": "2023-07-27 16:01:56",
+      "reportUrl": "https://www.sec.gov/Archives/edgar/data/789019/000095017023035122/msft-20230630.htm",
+      "filingUrl": "https://www.sec.gov/Archives/edgar/data/789019/000095017023035122/0000950170-23-035122-index.html"
+    }
+  ]
+}

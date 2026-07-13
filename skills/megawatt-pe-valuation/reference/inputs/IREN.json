@@ -1,0 +1,41 @@
+{
+  "symbol": "IREN-LADDER",
+  "load": {
+    "input_mode": "direct",
+    "total_load_mw": null,
+    "it_load_mw": 200,
+    "pue": null,
+    "utilization": 1.0
+  },
+  "revenue": {
+    "mode": "revenue_per_mw",
+    "gpus_per_mw": null,
+    "gpu_power_kw": null,
+    "gpu_hourly_rate": null,
+    "revenue_per_mw": "9.7M",
+    "hours_per_year": 8760
+  },
+  "earnings": {
+    "ebit_margin": 0.20,
+    "sga": "138M",
+    "tax_rate": 0.21
+  },
+  "valuation": {
+    "pe_multiple": 30,
+    "diluted_shares": "283.465M"
+  },
+  "ladder": {
+    "items": [
+      { "name": "Prince George", "site_profit": "210M", "site_revenue": "0.50B" },
+      { "name": "+ Mackenzie + Canal", "site_profit": "280M", "site_revenue": "1.00B" },
+      { "name": "+ Horizon 1-4", "site_profit": "194M", "site_revenue": "1.94B" },
+      { "name": "+ Horizon 5-10", "site_profit": "1.01B", "site_revenue": "4.13B" },
+      { "name": "+ Oklahoma", "site_profit": "672M", "site_revenue": "2.75B" },
+      { "name": "+ SW1 1400MW", "site_profit": "5.36B", "site_revenue": "15.74B" }
+    ]
+  },
+  "sensitivity": {
+    "pe_range": [20, 25, 30, 35, 40],
+    "mw_range": [100, 200, 300, 600, 1400]
+  }
+}

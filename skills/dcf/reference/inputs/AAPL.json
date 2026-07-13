@@ -1,0 +1,47 @@
+{
+  "symbol": "AAPL",
+  "base_year": {
+    "revenue": "416.2B",
+    "ebit_margin": 0.32,
+    "da_percent": 0.028,
+    "capex_percent": 0.031,
+    "nwc_percent": 0
+  },
+  "assumptions": {
+    "tax_rate": 0.21,
+    "growth_rates": [
+      0.064,
+      0.055,
+      0.046,
+      0.039,
+      0.034,
+      0.029,
+      0.024
+    ],
+    "ebit_margins": [
+      0.32,
+      0.32,
+      0.32,
+      0.32,
+      0.32,
+      0.32,
+      0.32
+    ]
+  },
+  "wacc_inputs": {
+    "risk_free_rate": 0.045,
+    "equity_risk_premium": 0.05,
+    "beta": 1.11,
+    "cost_of_debt": 0.05,
+    "debt_weight": 0.02,
+    "equity_weight": 0.98
+  },
+  "terminal": {
+    "growth_rate": 0.025
+  },
+  "balance_sheet": {
+    "cash": "35.9B",
+    "debt": "78.3B",
+    "diluted_shares": "14.8B"
+  }
+}

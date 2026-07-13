@@ -1,0 +1,27 @@
+{
+  "symbol": "GOOGL",
+  "fetched_at": "2026-03-02T07:57:15.955234",
+  "count": 2,
+  "filings": [
+    {
+      "accessNumber": "0001652044-26-000018",
+      "symbol": "GOOGL",
+      "cik": "1652044",
+      "form": "10-K",
+      "filedDate": "2026-02-05 00:00:00",
+      "acceptedDate": "2026-02-04 21:56:03",
+      "reportUrl": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
+      "filingUrl": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/0001652044-26-000018-index.html"
+    },
+    {
+      "accessNumber": "0001652044-25-000014",
+      "symbol": "GOOGL",
+      "cik": "1652044",
+      "form": "10-K",
+      "filedDate": "2025-02-05 00:00:00",
+      "acceptedDate": "2025-02-04 20:41:40",
+      "reportUrl": "https://www.sec.gov/Archives/edgar/data/1652044/000165204425000014/goog-20241231.htm",
+      "filingUrl": "https://www.sec.gov/Archives/edgar/data/1652044/000165204425000014/0001652044-25-000014-index.html"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "symbol": "EXAMPLE",
+  "load": {
+    "input_mode": "total",
+    "total_load_mw": 300,
+    "it_load_mw": null,
+    "pue": 1.5,
+    "utilization": 0.8
+  },
+  "revenue": {
+    "mode": "gpu_hourly",
+    "gpus_per_mw": 100,
+    "gpu_power_kw": null,
+    "gpu_hourly_rate": 2.5,
+    "revenue_per_mw": null,
+    "hours_per_year": 8760
+  },
+  "earnings": {
+    "ebit_margin": 0.35,
+    "sga": "50M",
+    "tax_rate": 0.21
+  },
+  "valuation": {
+    "pe_multiple": 25,
+    "diluted_shares": "400M"
+  },
+  "sensitivity": {
+    "pe_range": [15, 20, 25, 30, 35],
+    "mw_range": [200, 300, 400, 500, 600]
+  }
+}
