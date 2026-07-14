@@ -271,21 +271,26 @@
   }
 
   // ---------------------------------------------------- driver value getters
-  // Map an assumption key -> a formatted value pulled from a merged scenario.
+  // Map an assumption key -> value(s) pulled from a merged scenario. `get`
+  // may return a scalar string or an array (one entry per forecast year).
   var DRIVERS = {
-    growth_y1: { label: "Revenue growth · Yr 1", get: function (r) { return pct(r.assumptions.growth_rates[0]); } },
-    growth_yN: { label: "Revenue growth · Yr N", get: function (r) { var g = r.assumptions.growth_rates; return pct(g[g.length - 1]); } },
-    margin_yN: { label: "EBIT margin · Yr N", get: function (r) { var m = r.assumptions.ebit_margins; return pct(m[m.length - 1]); } },
-    wacc: { label: "WACC", get: function (r, s) { return pct(s.wacc); } },
-    terminal_g: { label: "Terminal growth", get: function (r, s) { return pct(s.terminalGrowth); } },
-    capex_y1: {
-      label: "Capex · Yr 1 (% rev)",
+    growth: { label: "Revenue growth (% / yr)", get: function (r) { return r.assumptions.growth_rates.map(pct); } },
+    margin: { label: "EBIT margin (%)", get: function (r) { return r.assumptions.ebit_margins.map(pct); } },
+    capex: {
+      label: "Capex (% of revenue)",
       get: function (r) {
         var c = (r.assumptions.capex_percent != null) ? r.assumptions.capex_percent : r.base_year.capex_percent;
-        return pct(Array.isArray(c) ? c[0] : c);
+        return Array.isArray(c) ? c.map(pct) : [pct(c)];
       }
     },
-    nwc: { label: "Net working capital (% rev)", get: function (r) { return pct(r.base_year.nwc_percent); } },
+    da: { label: "D&A (% of revenue)", get: function (r) { return pct(r.base_year.da_percent); } },
+    nwc: { label: "Net working capital (% of revenue)", get: function (r) { return pct(r.base_year.nwc_percent); } },
+    tax: { label: "Tax rate", get: function (r) { return pct(r.assumptions.tax_rate); } },
+    rf: { label: "Risk-free rate", get: function (r) { return pct(r.wacc_inputs.risk_free_rate); } },
+    erp: { label: "Equity risk premium", get: function (r) { return pct(r.wacc_inputs.equity_risk_premium); } },
+    beta: { label: "Beta", get: function (r) { return r.wacc_inputs.beta.toFixed(2); } },
+    wacc: { label: "WACC (derived)", get: function (r, s) { return pct(s.wacc); } },
+    terminal_g: { label: "Terminal growth", get: function (r, s) { return pct(s.terminalGrowth); } },
     probability: { label: "Scenario probability", get: function (r, s) { return pct(s.probability); } }
   };
 
@@ -337,46 +342,65 @@
     });
   }
 
-  // Assumptions table with a plain-English "how defensible" read per driver.
+  // Assumptions as Bear/Base/Bull tabs. Each driver shows its value(s) for the
+  // active scenario — list inputs (growth, margins, capex) show the full
+  // per-year series — plus a plain-English "how defensible" read.
   function renderDrivers(driverNotes, scenarios) {
     var mount = document.getElementById("dcf-drivers");
     if (!mount || !Array.isArray(driverNotes) || driverNotes.length === 0) return;
+    mount.innerHTML = "";
 
-    var byName = {};
-    scenarios.forEach(function (s) { byName[s.name] = s; });
+    var bar = el("div", "tab-bar");
+    bar.setAttribute("role", "tablist");
+    var panels = el("div", "tab-panels");
 
-    var table = document.createElement("table");
-    var thead = document.createElement("thead");
-    var htr = document.createElement("tr");
-    htr.appendChild(el("th", null, "Assumption"));
-    scenarios.forEach(function (s) { htr.appendChild(el("th", "num", s.name)); });
-    htr.appendChild(el("th", null, "Read"));
-    thead.appendChild(htr);
-    table.appendChild(thead);
+    scenarios.forEach(function (s, idx) {
+      var btn = el("button", "tab" + (idx === 0 ? " active" : ""), s.name);
+      btn.type = "button";
+      btn.setAttribute("data-i", idx);
+      bar.appendChild(btn);
 
-    var tbody = document.createElement("tbody");
-    driverNotes.forEach(function (dn) {
-      var def = DRIVERS[dn.key];
-      if (!def) return;
-      var tr = document.createElement("tr");
-      tr.appendChild(el("td", "name", dn.label || def.label));
-      scenarios.forEach(function (s) {
+      var panel = el("div", "tab-panel" + (idx === 0 ? " active" : ""));
+      driverNotes.forEach(function (dn) {
+        var def = DRIVERS[dn.key];
+        if (!def) return;
         var val;
         try { val = def.get(s.raw, s); } catch (e) { val = "—"; }
-        tr.appendChild(el("td", "num", val));
-      });
-      var read = el("td", "read");
-      if (dn.verdict) read.appendChild(el("span", "verdict", dn.verdict));
-      if (dn.comment) read.appendChild(el("span", "read-note", dn.comment));
-      tr.appendChild(read);
-      tbody.appendChild(tr);
-    });
-    table.appendChild(tbody);
 
-    mount.innerHTML = "";
-    var scroll = el("div", "table-scroll");
-    scroll.appendChild(table);
-    mount.appendChild(scroll);
+        var item = el("div", "assump");
+        var head = el("div", "assump-head");
+        head.appendChild(el("span", "assump-label", dn.label || def.label));
+        if (dn.verdict) head.appendChild(el("span", "verdict", dn.verdict));
+        item.appendChild(head);
+
+        if (Array.isArray(val)) {
+          var strip = el("div", "yr-strip");
+          val.forEach(function (v, i) {
+            var cell = el("span", "yr");
+            cell.appendChild(el("span", "yr-n", "Y" + (i + 1)));
+            cell.appendChild(el("span", "yr-v", v));
+            strip.appendChild(cell);
+          });
+          item.appendChild(strip);
+        } else {
+          item.appendChild(el("div", "assump-val", val));
+        }
+        if (dn.comment) item.appendChild(el("p", "read-note", dn.comment));
+        panel.appendChild(item);
+      });
+      panels.appendChild(panel);
+    });
+
+    bar.addEventListener("click", function (e) {
+      var b = e.target && e.target.closest ? e.target.closest(".tab") : null;
+      if (!b || !bar.contains(b)) return;
+      var i = +b.getAttribute("data-i");
+      Array.prototype.forEach.call(bar.children, function (x, xi) { x.classList.toggle("active", xi === i); });
+      Array.prototype.forEach.call(panels.children, function (x, xi) { x.classList.toggle("active", xi === i); });
+    });
+
+    mount.appendChild(bar);
+    mount.appendChild(panels);
   }
 
   // Relative-valuation cross-check: forward EPS x a range of peer multiples.

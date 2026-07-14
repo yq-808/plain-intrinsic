@@ -85,13 +85,33 @@ thead th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; co
 tfoot td { border-top: 2px solid var(--border); border-bottom: none; font-weight: 600; }
 table.compact td { padding: 8px 12px; }
 
-/* "Read" column: verdict pill + plain-English note */
-td.read { max-width: 340px; }
-.verdict { display: inline-block; font-weight: 700; font-size: 12px; margin-right: 8px;
+/* verdict pill + plain-English note */
+.verdict { display: inline-block; font-weight: 700; font-size: 12px;
   padding: 1px 8px; border-radius: 999px; background: var(--panel); border: 1px solid var(--border); }
 .read-note { color: var(--muted); font-size: 13px; }
 .panel-note { color: var(--muted); font-size: 13px; margin: 12px 0 0; max-width: 68ch; }
-#dcf-comps .meta, #dcf-drivers .meta { margin-bottom: 10px; }
+#dcf-comps .meta { margin-bottom: 10px; }
+
+/* Assumptions: Bear/Base/Bull tabs */
+.tab-bar { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
+.tab { appearance: none; background: transparent; border: 0; border-bottom: 2px solid transparent;
+  color: var(--muted); font: inherit; font-weight: 600; font-size: 15px; padding: 8px 16px;
+  cursor: pointer; margin-bottom: -1px; }
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--text); border-bottom-color: var(--accent); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.assump { padding: 16px 0; border-bottom: 1px solid var(--border); }
+.assump:last-child { border-bottom: 0; }
+.assump-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.assump-label { font-weight: 600; }
+.assump-val { font-variant-numeric: tabular-nums; font-size: 18px; font-weight: 700; margin-top: 6px; }
+.assump .read-note { display: block; margin: 8px 0 0; max-width: 68ch; }
+.yr-strip { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.yr { display: flex; flex-direction: column; align-items: center; min-width: 50px;
+  padding: 6px 4px; border: 1px solid var(--border); border-radius: 8px; background: var(--panel); }
+.yr-n { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.yr-v { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 2px; }
 
 /* Footer */
 .disclaimer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border);
