@@ -1,0 +1,63 @@
+{
+  "symbol": "GOOGL",
+  "drivers": [
+    {
+      "key": "growth_y1",
+      "label": "Revenue growth · Yr 1",
+      "verdict": "Defensible",
+      "comment": "GOOGL grew ~15% in FY25 (revenue $402.8B). Base ≈ trend; Bull assumes AI/Cloud re-accelerates. Reasonable across the range."
+    },
+    {
+      "key": "growth_yN",
+      "label": "Revenue growth · Yr 10",
+      "verdict": "Reasonable",
+      "comment": "Fades to mature growth by year 10. 6% (Base) on a $700B+ revenue base is sensible; 3% (Bear) is conservative."
+    },
+    {
+      "key": "margin_yN",
+      "label": "EBIT margin · Yr 10",
+      "verdict": "On the optimistic edge",
+      "comment": "Assumes steady operating-margin expansion despite heavy AI capex. 39% (Bull) would be an all-time high — plausible only if AI drives real leverage."
+    },
+    {
+      "key": "wacc",
+      "label": "WACC",
+      "verdict": "Solid / market-calibrated",
+      "comment": "ERP 3.9–4.3% ≈ Damodaran's implied 4.23% (2026); beta ~1.0–1.1. This is where current market conditions legitimately enter the model."
+    },
+    {
+      "key": "terminal_g",
+      "label": "Terminal growth",
+      "verdict": "Base OK · Bull at the ceiling",
+      "comment": "Terminal g should not exceed the ~4% risk-free / long-run nominal GDP. Bull's 3.5% sits right at that edge."
+    },
+    {
+      "key": "capex_y1",
+      "label": "Capex · Yr 1 (% rev)",
+      "verdict": "Judgment call (AI capex)",
+      "comment": "Near-term capex is elevated for the AI data-centre build-out. The assumed decline over the forecast is the single biggest swing factor."
+    },
+    {
+      "key": "nwc",
+      "label": "Net working capital (% rev)",
+      "verdict": "Too high → biases value DOWN",
+      "comment": "GOOGL actually runs near-zero / negative working capital (deferred revenue funds it). Modelling a 15–18% drag understates value — the model is conservative here."
+    },
+    {
+      "key": "probability",
+      "label": "Scenario probability",
+      "verdict": "Bull-tilted (AI optimism)",
+      "comment": "Weights already lean bullish (Bull 40% / Base 45%). The market's high-20s× multiple implies even more weight on the Bull path — that's the AI fever, priced."
+    }
+  ],
+  "comps": {
+    "forward_eps": 13.27,
+    "eps_basis": "FY2026E consensus EPS $13.27 (FY25 actual $10.91, +22%)",
+    "multiples": [
+      { "label": "Sector median", "pe": 22 },
+      { "label": "Quality mega-cap tech", "pe": 25 },
+      { "label": "AI-leader premium", "pe": 28 }
+    ],
+    "note": "The chosen multiple is where 'market hotness' legitimately belongs — not a fudge factor on the DCF. At 25× (a quality-tech multiple) comps land almost exactly on the mid-year DCF, so both methods triangulate near the same value. The market currently pays a high-20s× forward multiple; that premium over the central estimate IS the AI-regime optimism, made explicit and auditable rather than hidden in a sentiment multiplier."
+  }
+}

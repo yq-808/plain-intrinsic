@@ -31,6 +31,10 @@ DOCS = ROOT / "docs"
 REPORTS_DIR = DOCS / "reports"
 MANIFEST = REPORTS_DIR / "manifest.json"
 
+# Site conventions applied by docs/assets/dcf.js (shown on each page).
+CONVENTIONS = ("Mid-year discounting convention. Comps cross-check values "
+               "forward EPS at peer multiples — no live market price is used.")
+
 
 # --------------------------------------------------------------------------- #
 # Data loading
@@ -57,10 +61,33 @@ def embed_json(data):
 # --------------------------------------------------------------------------- #
 # HTML rendering — pages carry inputs only; dcf.js fills the numbers.
 # --------------------------------------------------------------------------- #
-def render_report(symbol, data, date_str):
+def render_report(symbol, data, date_str, notes=None):
     sym = escape(symbol)
     method = escape(method_for(data))
     weighted = data.get("scenarios") is not None
+    notes = notes or {}
+
+    comps_section = ""
+    if notes.get("comps"):
+        comps_section = """
+  <section>
+    <h2>Comps cross-check <span class="sub">relative valuation</span></h2>
+    <div id="dcf-comps"></div>
+  </section>
+"""
+
+    drivers_section = ""
+    if notes.get("drivers"):
+        drivers_section = """
+  <section>
+    <h2>Assumptions &amp; how defensible</h2>
+    <div id="dcf-drivers"></div>
+  </section>
+"""
+
+    notes_script = ""
+    if notes:
+        notes_script = f'\n<script type="application/json" id="dcf-notes">{embed_json(notes)}</script>'
 
     return f"""<!doctype html>
 <html lang="en">
@@ -86,7 +113,7 @@ def render_report(symbol, data, date_str):
     <div class="card hero-card">
       <div class="card-label">Intrinsic value / share</div>
       <div class="card-value" id="dcf-intrinsic">…</div>
-      <div class="card-foot">{'probability-weighted DCF' if weighted else 'DCF, single scenario'}</div>
+      <div class="card-foot">{'probability-weighted DCF · mid-year' if weighted else 'DCF, single scenario · mid-year'}</div>
     </div>
   </section>
 
@@ -108,7 +135,7 @@ def render_report(symbol, data, date_str):
     <noscript><p class="meta">This report computes its valuation in the browser;
     enable JavaScript to see the numbers.</p></noscript>
   </section>
-
+{comps_section}{drivers_section}
   <section>
     <h2>Key inputs</h2>
     <div class="table-scroll">
@@ -123,10 +150,11 @@ def render_report(symbol, data, date_str):
     assumptions. The valuation is computed in your browser from an embedded input
     snapshot using the <code>dcf</code> engine; it is a personal modeling
     exercise, not a recommendation to buy or sell any security.</p>
+    <p class="meta">{escape(CONVENTIONS)}</p>
     <p class="gen">Generated {date_str} · plain-intrinsic</p>
   </footer>
 </main>
-<script type="application/json" id="dcf-input">{embed_json(data)}</script>
+<script type="application/json" id="dcf-input">{embed_json(data)}</script>{notes_script}
 <script src="../../assets/dcf.js"></script>
 </body>
 </html>
@@ -255,6 +283,14 @@ thead th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; co
 tfoot td { border-top: 2px solid var(--border); border-bottom: none; font-weight: 600; }
 table.compact td { padding: 8px 12px; }
 
+/* "Read" column: verdict pill + plain-English note */
+td.read { max-width: 340px; }
+.verdict { display: inline-block; font-weight: 700; font-size: 12px; margin-right: 8px;
+  padding: 1px 8px; border-radius: 999px; background: var(--panel); border: 1px solid var(--border); }
+.read-note { color: var(--muted); font-size: 13px; }
+.panel-note { color: var(--muted); font-size: 13px; margin: 12px 0 0; max-width: 68ch; }
+#dcf-comps .meta, #dcf-drivers .meta { margin-bottom: 10px; }
+
 /* Footer */
 .disclaimer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border);
   color: var(--muted); font-size: 13px; }
@@ -296,11 +332,14 @@ def main():
     if data is None:
         sys.exit(f"Error: no DCF input file for {symbol} at {input_path}")
 
+    # Optional commentary + comps sidecar (drives the extra panels).
+    notes = load_json(DCF_REF / "notes" / f"{symbol}.json")
+
     # Write report page (inputs embedded; math runs in the browser).
     out_dir = REPORTS_DIR / symbol.lower()
     out_dir.mkdir(parents=True, exist_ok=True)
     out_file = out_dir / f"{date_str}.html"
-    out_file.write_text(render_report(symbol, data, date_str))
+    out_file.write_text(render_report(symbol, data, date_str, notes))
 
     # Update manifest + rebuild index + refresh stylesheet.
     entry = {

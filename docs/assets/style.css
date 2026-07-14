@@ -85,6 +85,14 @@ thead th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; co
 tfoot td { border-top: 2px solid var(--border); border-bottom: none; font-weight: 600; }
 table.compact td { padding: 8px 12px; }
 
+/* "Read" column: verdict pill + plain-English note */
+td.read { max-width: 340px; }
+.verdict { display: inline-block; font-weight: 700; font-size: 12px; margin-right: 8px;
+  padding: 1px 8px; border-radius: 999px; background: var(--panel); border: 1px solid var(--border); }
+.read-note { color: var(--muted); font-size: 13px; }
+.panel-note { color: var(--muted); font-size: 13px; margin: 12px 0 0; max-width: 68ch; }
+#dcf-comps .meta, #dcf-drivers .meta { margin-bottom: 10px; }
+
 /* Footer */
 .disclaimer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border);
   color: var(--muted); font-size: 13px; }

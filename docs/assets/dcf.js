@@ -1,9 +1,13 @@
 /*
- * plain-intrinsic — client-side DCF engine.
+ * plain-intrinsic — client-side DCF engine + comps cross-check.
  *
- * A faithful port of skills/dcf/scripts/dcf_calculator.py (FCFF methodology).
+ * A faithful port of skills/dcf/scripts/dcf_calculator.py (FCFF methodology),
+ * with two professional refinements applied in the browser:
+ *   - mid-year discounting convention (cash flows arrive mid-year on average),
+ *   - a relative-valuation (comps) cross-check: forward EPS x peer P/E.
+ *
  * The static pages ship the *inputs* only; this script turns them into the
- * final valuation table in the browser. No market price, valuation only.
+ * final valuation. Valuation only — no live market price.
  */
 (function (global) {
   "use strict";
@@ -48,6 +52,11 @@
     return "$" + x.toFixed(2);
   }
 
+  function multipleFmt(x) {
+    if (x === null || x === undefined || isNaN(x)) return "—";
+    return x.toFixed(1) + "×";
+  }
+
   // -------------------------------------------------------------------- WACC
   function calculateWacc(waccInputs, taxRate) {
     var rf = waccInputs.risk_free_rate;
@@ -62,6 +71,10 @@
   }
 
   // --------------------------------------------------------------- core DCF
+  // Mid-year convention: a cash flow booked "in year n" is received, on
+  // average, half-way through it, so it is discounted at (n - 0.5) rather than
+  // n. For a Gordon-growth terminal value the continuing value is likewise
+  // discounted at (N - 0.5). Net effect ~ +(1+WACC)^0.5, about +4%.
   function calculateDcf(data) {
     var by = data.base_year;
     var a = data.assumptions;
@@ -106,7 +119,7 @@
       var nwc = revenue * nwcPercent;
       var deltaNwc = nwc - prevNwc;
       var fcff = nopat + da - capex - deltaNwc;
-      var df = 1 / Math.pow(1 + wacc, i + 1);
+      var df = 1 / Math.pow(1 + wacc, i + 0.5); // mid-year convention
 
       fcffs.push(fcff);
       discountFactors.push(df);
@@ -118,6 +131,7 @@
 
     var terminalFcff = fcffs[years - 1] * (1 + terminalGrowth);
     var terminalValue = terminalFcff / (wacc - terminalGrowth);
+    // Gordon-growth terminal value discounted at the final mid-year factor.
     var pvTerminal = terminalValue * discountFactors[years - 1];
 
     var sumPvFcff = pvFcffs.reduce(function (s, v) { return s + v; }, 0);
@@ -209,6 +223,7 @@
       return {
         name: name,
         probability: scenario.probability,
+        input: scenarioData, // merged inputs, so callers can show assumptions
         results: result,
         contribution: result.intrinsicPrice * scenario.probability
       };
@@ -219,7 +234,7 @@
 
   /**
    * Normalize any input doc into { method, scenarios[], intrinsic }.
-   * Works for both multi-scenario and single-scenario input files.
+   * Each scenario carries `raw` = the merged inputs behind it.
    */
   function evaluate(data) {
     var scenarios, intrinsic, method;
@@ -232,11 +247,12 @@
           wacc: item.results.wacc,
           terminalGrowth: item.results.terminalGrowth,
           intrinsicPrice: item.results.intrinsicPrice,
-          contribution: item.contribution
+          contribution: item.contribution,
+          raw: item.input
         };
       });
       intrinsic = pw.weightedPrice;
-      method = "DCF — FCFF, probability-weighted scenarios";
+      method = "DCF — FCFF, probability-weighted scenarios (mid-year)";
     } else {
       var r = calculateDcf(data);
       scenarios = [{
@@ -245,13 +261,33 @@
         wacc: r.wacc,
         terminalGrowth: r.terminalGrowth,
         intrinsicPrice: r.intrinsicPrice,
-        contribution: r.intrinsicPrice
+        contribution: r.intrinsicPrice,
+        raw: data
       }];
       intrinsic = r.intrinsicPrice;
-      method = "DCF — FCFF, single scenario";
+      method = "DCF — FCFF, single scenario (mid-year)";
     }
     return { method: method, scenarios: scenarios, intrinsic: intrinsic };
   }
+
+  // ---------------------------------------------------- driver value getters
+  // Map an assumption key -> a formatted value pulled from a merged scenario.
+  var DRIVERS = {
+    growth_y1: { label: "Revenue growth · Yr 1", get: function (r) { return pct(r.assumptions.growth_rates[0]); } },
+    growth_yN: { label: "Revenue growth · Yr N", get: function (r) { var g = r.assumptions.growth_rates; return pct(g[g.length - 1]); } },
+    margin_yN: { label: "EBIT margin · Yr N", get: function (r) { var m = r.assumptions.ebit_margins; return pct(m[m.length - 1]); } },
+    wacc: { label: "WACC", get: function (r, s) { return pct(s.wacc); } },
+    terminal_g: { label: "Terminal growth", get: function (r, s) { return pct(s.terminalGrowth); } },
+    capex_y1: {
+      label: "Capex · Yr 1 (% rev)",
+      get: function (r) {
+        var c = (r.assumptions.capex_percent != null) ? r.assumptions.capex_percent : r.base_year.capex_percent;
+        return pct(Array.isArray(c) ? c[0] : c);
+      }
+    },
+    nwc: { label: "Net working capital (% rev)", get: function (r) { return pct(r.base_year.nwc_percent); } },
+    probability: { label: "Scenario probability", get: function (r, s) { return pct(s.probability); } }
+  };
 
   // ------------------------------------------------------------- DOM helpers
   function el(tag, cls, text) {
@@ -261,20 +297,11 @@
     return e;
   }
 
-  function renderReport(data) {
-    var evald = evaluate(data);
-
-    var methodEl = document.getElementById("dcf-method");
-    if (methodEl) methodEl.textContent = evald.method;
-
-    var intrinsicEl = document.getElementById("dcf-intrinsic");
-    if (intrinsicEl) intrinsicEl.textContent = price(evald.intrinsic);
-
-    // Scenario rows
+  function renderScenarioTable(scenarios, intrinsic) {
     var tbody = document.getElementById("dcf-scenario-rows");
     if (tbody) {
       tbody.innerHTML = "";
-      evald.scenarios.forEach(function (s) {
+      scenarios.forEach(function (s) {
         var tr = document.createElement("tr");
         tr.appendChild(el("td", "name", s.name));
         tr.appendChild(el("td", "num", pct(s.probability)));
@@ -286,28 +313,131 @@
       });
     }
     var weightedEl = document.getElementById("dcf-weighted");
-    if (weightedEl) weightedEl.textContent = price(evald.intrinsic);
+    if (weightedEl) weightedEl.textContent = price(intrinsic);
+  }
 
-    // Key inputs (financials the valuation rests on)
+  function renderKeyInputs(data) {
     var kbody = document.getElementById("dcf-key-inputs");
-    if (kbody) {
-      kbody.innerHTML = "";
-      var bs = data.balance_sheet || {};
-      var rows = [];
-      var baseRev = data.base_year && data.base_year.revenue;
-      if (baseRev) rows.push(["Base-year revenue", money(parseValue(baseRev))]);
-      if (bs.cash !== undefined) rows.push(["Cash", money(parseValue(bs.cash))]);
-      if (bs.debt !== undefined) rows.push(["Debt", money(parseValue(bs.debt))]);
-      if (bs.diluted_shares !== undefined) {
-        rows.push(["Diluted shares", (parseValue(bs.diluted_shares) / 1e9).toFixed(3) + "B"]);
-      }
-      rows.forEach(function (r) {
-        var tr = document.createElement("tr");
-        tr.appendChild(el("td", null, r[0]));
-        tr.appendChild(el("td", "num", r[1]));
-        kbody.appendChild(tr);
-      });
+    if (!kbody) return;
+    kbody.innerHTML = "";
+    var bs = data.balance_sheet || {};
+    var rows = [];
+    var baseRev = data.base_year && data.base_year.revenue;
+    if (baseRev) rows.push(["Base-year revenue", money(parseValue(baseRev))]);
+    if (bs.cash !== undefined) rows.push(["Cash", money(parseValue(bs.cash))]);
+    if (bs.debt !== undefined) rows.push(["Debt", money(parseValue(bs.debt))]);
+    if (bs.diluted_shares !== undefined) {
+      rows.push(["Diluted shares", (parseValue(bs.diluted_shares) / 1e9).toFixed(3) + "B"]);
     }
+    rows.forEach(function (r) {
+      var tr = document.createElement("tr");
+      tr.appendChild(el("td", null, r[0]));
+      tr.appendChild(el("td", "num", r[1]));
+      kbody.appendChild(tr);
+    });
+  }
+
+  // Assumptions table with a plain-English "how defensible" read per driver.
+  function renderDrivers(driverNotes, scenarios) {
+    var mount = document.getElementById("dcf-drivers");
+    if (!mount || !Array.isArray(driverNotes) || driverNotes.length === 0) return;
+
+    var byName = {};
+    scenarios.forEach(function (s) { byName[s.name] = s; });
+
+    var table = document.createElement("table");
+    var thead = document.createElement("thead");
+    var htr = document.createElement("tr");
+    htr.appendChild(el("th", null, "Assumption"));
+    scenarios.forEach(function (s) { htr.appendChild(el("th", "num", s.name)); });
+    htr.appendChild(el("th", null, "Read"));
+    thead.appendChild(htr);
+    table.appendChild(thead);
+
+    var tbody = document.createElement("tbody");
+    driverNotes.forEach(function (dn) {
+      var def = DRIVERS[dn.key];
+      if (!def) return;
+      var tr = document.createElement("tr");
+      tr.appendChild(el("td", "name", dn.label || def.label));
+      scenarios.forEach(function (s) {
+        var val;
+        try { val = def.get(s.raw, s); } catch (e) { val = "—"; }
+        tr.appendChild(el("td", "num", val));
+      });
+      var read = el("td", "read");
+      if (dn.verdict) read.appendChild(el("span", "verdict", dn.verdict));
+      if (dn.comment) read.appendChild(el("span", "read-note", dn.comment));
+      tr.appendChild(read);
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+
+    mount.innerHTML = "";
+    var scroll = el("div", "table-scroll");
+    scroll.appendChild(table);
+    mount.appendChild(scroll);
+  }
+
+  // Relative-valuation cross-check: forward EPS x a range of peer multiples.
+  // The chosen multiple is where "market hotness" legitimately enters.
+  function renderComps(comps, dcfIntrinsic) {
+    var mount = document.getElementById("dcf-comps");
+    if (!mount || !comps || !Array.isArray(comps.multiples)) return;
+    var eps = comps.forward_eps;
+
+    var table = document.createElement("table");
+    var thead = document.createElement("thead");
+    var htr = document.createElement("tr");
+    htr.appendChild(el("th", null, "Multiple"));
+    htr.appendChild(el("th", "num", "P/E"));
+    htr.appendChild(el("th", "num", "Implied value / share"));
+    thead.appendChild(htr);
+    table.appendChild(thead);
+
+    var tbody = document.createElement("tbody");
+    comps.multiples.forEach(function (m) {
+      var tr = document.createElement("tr");
+      tr.appendChild(el("td", "name", m.label));
+      tr.appendChild(el("td", "num", multipleFmt(m.pe)));
+      tr.appendChild(el("td", "num strong", price(eps * m.pe)));
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+
+    // Footer: where the DCF sits in P/E terms, so the two methods can be
+    // compared on one scale.
+    if (dcfIntrinsic && eps) {
+      var tfoot = document.createElement("tfoot");
+      var ftr = document.createElement("tr");
+      ftr.appendChild(el("td", "name", "DCF value implies"));
+      ftr.appendChild(el("td", "num strong", multipleFmt(dcfIntrinsic / eps)));
+      ftr.appendChild(el("td", "num strong", price(dcfIntrinsic)));
+      tfoot.appendChild(ftr);
+      table.appendChild(tfoot);
+    }
+
+    mount.innerHTML = "";
+    if (comps.eps_basis) mount.appendChild(el("p", "meta", "Earnings basis: " + comps.eps_basis));
+    var scroll = el("div", "table-scroll");
+    scroll.appendChild(table);
+    mount.appendChild(scroll);
+    if (comps.note) mount.appendChild(el("p", "panel-note", comps.note));
+  }
+
+  function renderReport(data, notes) {
+    notes = notes || {};
+    var evald = evaluate(data);
+
+    var methodEl = document.getElementById("dcf-method");
+    if (methodEl) methodEl.textContent = evald.method;
+    var intrinsicEl = document.getElementById("dcf-intrinsic");
+    if (intrinsicEl) intrinsicEl.textContent = price(evald.intrinsic);
+
+    renderScenarioTable(evald.scenarios, evald.intrinsic);
+    renderComps(notes.comps, evald.intrinsic);
+    renderDrivers(notes.drivers, evald.scenarios);
+    renderKeyInputs(data);
     return evald;
   }
 
@@ -315,7 +445,6 @@
     var mount = document.getElementById("dcf-index");
     if (!mount) return;
 
-    // Group by symbol, newest date first.
     var bySymbol = {};
     entries.forEach(function (e) {
       (bySymbol[e.symbol] = bySymbol[e.symbol] || []).push(e);
@@ -341,11 +470,8 @@
         a.appendChild(el("span", "rr-method", e.method || ""));
         var metric = el("span", "rr-metric", "intrinsic ");
         var b = el("b");
-        try {
-          b.textContent = price(evaluate(e.input).intrinsic);
-        } catch (err) {
-          b.textContent = "—";
-        }
+        try { b.textContent = price(evaluate(e.input).intrinsic); }
+        catch (err) { b.textContent = "—"; }
         metric.appendChild(b);
         a.appendChild(metric);
         section.appendChild(a);
@@ -368,30 +494,32 @@
     renderIndex: renderIndex
   };
 
-  // Auto-init when embedded data is present on the page.
+  function readJson(id) {
+    var node = document.getElementById(id);
+    if (!node) return null;
+    try { return JSON.parse(node.textContent); } catch (e) { return null; }
+  }
+
   function boot() {
-    var inputEl = document.getElementById("dcf-input");
-    if (inputEl) {
+    var input = readJson("dcf-input");
+    if (input) {
       try {
-        renderReport(JSON.parse(inputEl.textContent));
+        renderReport(input, readJson("dcf-notes"));
       } catch (err) {
         var box = document.getElementById("dcf-intrinsic");
         if (box) box.textContent = "error";
         if (global.console) console.error("DCF report render failed:", err);
       }
     }
-    var manifestEl = document.getElementById("dcf-manifest");
-    if (manifestEl) {
-      try {
-        renderIndex(JSON.parse(manifestEl.textContent));
-      } catch (err) {
-        if (global.console) console.error("DCF index render failed:", err);
-      }
+    var manifest = readJson("dcf-manifest");
+    if (manifest) {
+      try { renderIndex(manifest); }
+      catch (err) { if (global.console) console.error("DCF index render failed:", err); }
     }
   }
 
   if (typeof module !== "undefined" && module.exports) {
-    module.exports = DCF; // Node (used by the validation harness)
+    module.exports = DCF; // Node (validation harness)
   } else {
     global.DCF = DCF;
     if (document.readyState === "loading") {
