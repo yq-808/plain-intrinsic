@@ -82,6 +82,16 @@ def render_report(symbol, data, date_str, notes=None, snapshot_name=None):
   </section>
 """
 
+    consensus_section = ""
+    if data.get("consensus"):
+        consensus_section = """
+  <section>
+    <h2>Street consensus — same engine</h2>
+    <p class="meta">Analyst-consensus forecast run through the same DCF, for comparison — not part of the probability-weighted value above.</p>
+    <div id="dcf-consensus"></div>
+  </section>
+"""
+
     notes_script = ""
     if notes:
         notes_script = f'\n<script type="application/json" id="dcf-notes">{embed_json(notes)}</script>'
@@ -124,7 +134,7 @@ def render_report(symbol, data, date_str, notes=None, snapshot_name=None):
     <noscript><p class="meta">This report computes its valuation in the browser;
     enable JavaScript to see the numbers.</p></noscript>
   </section>
-{drivers_section}
+{consensus_section}{drivers_section}
   <section>
     <h2>Key inputs</h2>
     <div class="table-scroll">
@@ -263,6 +273,13 @@ thead th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; co
 .strong { font-weight: 700; }
 tfoot td { border-top: 2px solid var(--border); border-bottom: none; font-weight: 600; }
 table.compact td { padding: 8px 12px; }
+
+/* Consensus cross-check */
+.consensus-head { display: flex; align-items: baseline; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.consensus-label { color: var(--muted); font-size: 14px; }
+.consensus-value { font-weight: 700; font-size: 24px; font-variant-numeric: tabular-nums; }
+#dcf-consensus .read-note { display: block; margin: 12px 0 0; max-width: 72ch; }
 
 /* verdict pill + plain-English note */
 .verdict { display: inline-block; font-weight: 700; font-size: 12px;

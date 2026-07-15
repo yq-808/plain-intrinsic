@@ -430,6 +430,55 @@
     }
   }
 
+  // Optional "Street consensus" cross-check: run the analyst-consensus path
+  // through the same FCFF engine (as a single, non-weighted scenario merged
+  // onto the base) and show its intrinsic next to our probability-weighted
+  // value. Rendered only when the input carries a `consensus` block.
+  function renderConsensus(data, weightedIntrinsic) {
+    var mount = document.getElementById("dcf-consensus");
+    if (!mount || !data.consensus) return;
+    mount.innerHTML = "";
+    var c = data.consensus;
+    var cData = buildScenarioData(data, c);
+    var r = calculateDcf(cData);
+
+    var head = el("div", "consensus-head");
+    head.appendChild(el("span", "consensus-label", c.label || "Consensus"));
+    head.appendChild(el("span", "consensus-value", price(r.intrinsicPrice)));
+    mount.appendChild(head);
+
+    var rev = parseValue(cData.base_year.revenue);
+    var g = cData.assumptions.growth_rates || [];
+    var revs = [];
+    for (var i = 0; i < 3 && i < g.length; i++) { rev = rev * (1 + g[i]); revs.push(money(rev)); }
+    var m = cData.assumptions.ebit_margins || [];
+    var rows = [
+      ["Consensus revenue (Y1 / Y2 / Y3)", revs.join(" / ")],
+      ["Operating margin (Y1 → Y" + m.length + ")", m.length ? pct(m[0]) + " → " + pct(m[m.length - 1]) : "—"],
+      ["Discount rate (WACC)", pct(r.wacc)],
+      ["Terminal growth", pct(cData.terminal.growth_rate)],
+      ["Consensus DCF intrinsic", price(r.intrinsicPrice)]
+    ];
+    if (weightedIntrinsic != null) rows.push(["Our probability-weighted value", price(weightedIntrinsic)]);
+
+    var scroll = el("div", "table-scroll");
+    var table = document.createElement("table");
+    table.className = "compact";
+    var tb = document.createElement("tbody");
+    rows.forEach(function (rw) {
+      var tr = document.createElement("tr");
+      tr.appendChild(el("td", null, rw[0]));
+      tr.appendChild(el("td", "num", rw[1]));
+      tb.appendChild(tr);
+    });
+    table.appendChild(tb);
+    scroll.appendChild(table);
+    mount.appendChild(scroll);
+
+    if (c.note) mount.appendChild(el("p", "read-note", c.note));
+    if (c.source) mount.appendChild(el("p", "meta", "Source: " + c.source));
+  }
+
   function renderReport(data, notes) {
     notes = notes || {};
     var evald = evaluate(data);
@@ -440,6 +489,7 @@
     if (intrinsicEl) intrinsicEl.textContent = price(evald.intrinsic);
 
     renderScenarioTable(evald.scenarios, evald.intrinsic);
+    renderConsensus(data, evald.intrinsic);
     renderDrivers(notes.drivers, evald.scenarios);
     renderKeyInputs(data);
     return evald;

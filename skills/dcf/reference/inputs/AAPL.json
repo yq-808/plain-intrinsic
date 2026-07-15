@@ -13,6 +13,63 @@
     "debt": "84.7B",
     "diluted_shares": "14.8B"
   },
+  "consensus": {
+    "label": "Street consensus (FY26–FY28), same engine",
+    "source": "S&P Global / Visible Alpha aggregate of ~38–41 analysts (Jul 2026): FY26 revenue ~$478B (+15%), FY27 ~$522B, FY28 ~$562B; EPS $8.76 / $9.69 / $10.91.",
+    "note": "The Street's own consensus revenue path, run through this same FCFF engine at the Base-case discount rate. It lands below our probability-weighted value because consensus EPS grows faster than revenue mainly through buybacks (~2.4%/yr fewer shares) — which a whole-firm DCF does not capture — with only mild operating-margin expansion. So even the analysts' explicit forecast implies an intrinsic well under the market price; the rest is multiple re-rating.",
+    "base_year": {
+      "nwc_percent": 0.0
+    },
+    "assumptions": {
+      "growth_rates": [
+        0.149,
+        0.092,
+        0.076,
+        0.068,
+        0.06,
+        0.054,
+        0.048,
+        0.044,
+        0.042,
+        0.04
+      ],
+      "ebit_margins": [
+        0.32,
+        0.322,
+        0.324,
+        0.326,
+        0.328,
+        0.33,
+        0.331,
+        0.332,
+        0.334,
+        0.335
+      ],
+      "capex_percent": [
+        0.032,
+        0.032,
+        0.031,
+        0.031,
+        0.031,
+        0.031,
+        0.03,
+        0.03,
+        0.03,
+        0.03
+      ]
+    },
+    "wacc_inputs": {
+      "risk_free_rate": 0.046,
+      "equity_risk_premium": 0.042,
+      "beta": 1.05,
+      "cost_of_debt": 0.048,
+      "debt_weight": 0.02,
+      "equity_weight": 0.98
+    },
+    "terminal": {
+      "growth_rate": 0.03
+    }
+  },
   "scenarios": [
     {
       "name": "Bear",

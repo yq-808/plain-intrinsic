@@ -74,6 +74,13 @@ thead th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; co
 tfoot td { border-top: 2px solid var(--border); border-bottom: none; font-weight: 600; }
 table.compact td { padding: 8px 12px; }
 
+/* Consensus cross-check */
+.consensus-head { display: flex; align-items: baseline; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.consensus-label { color: var(--muted); font-size: 14px; }
+.consensus-value { font-weight: 700; font-size: 24px; font-variant-numeric: tabular-nums; }
+#dcf-consensus .read-note { display: block; margin: 12px 0 0; max-width: 72ch; }
+
 /* verdict pill + plain-English note */
 .verdict { display: inline-block; font-weight: 700; font-size: 12px;
   padding: 1px 8px; border-radius: 999px; background: var(--panel); border: 1px solid var(--border); }
