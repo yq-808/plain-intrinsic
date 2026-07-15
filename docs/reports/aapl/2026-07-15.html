@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AAPL valuation — 2026-07-15 · daily-intrinsic</title>
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+<main class="wrap">
+  <p class="crumb"><a href="../../index.html">← All reports</a></p>
+
+  <header class="rpt-head">
+    <div>
+      <h1>AAPL <span class="sub">valuation</span></h1>
+      <p class="meta" id="dcf-method">DCF — FCFF, probability-weighted scenarios</p>
+    </div>
+    <div class="date-badge">2026-07-15</div>
+  </header>
+
+  <section>
+    <h2>Scenario breakdown</h2>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>Scenario</th><th class="num">Prob.</th><th class="num">WACC</th>
+              <th class="num">Term. g</th><th class="num">Intrinsic</th><th class="num">Weighted</th></tr>
+        </thead>
+        <tbody id="dcf-scenario-rows"></tbody>
+        <tfoot>
+          <tr><td colspan="4" class="name">Probability-weighted intrinsic value</td>
+              <td colspan="2" class="num strong" id="dcf-weighted">…</td></tr>
+        </tfoot>
+      </table>
+    </div>
+    <noscript><p class="meta">This report computes its valuation in the browser;
+    enable JavaScript to see the numbers.</p></noscript>
+  </section>
+
+  <section>
+    <h2>Assumptions &amp; how defensible</h2>
+    <div id="dcf-drivers"></div>
+  </section>
+
+  <section>
+    <h2>Key inputs</h2>
+    <div class="table-scroll">
+      <table class="compact">
+        <tbody id="dcf-key-inputs"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="disclaimer">
+    <p><strong>Not investment advice.</strong> A DCF is only as good as its
+    assumptions. The valuation is computed in your browser from an embedded input
+    snapshot using the <code>dcf</code> engine; it is a personal modeling
+    exercise, not a recommendation to buy or sell any security.</p>
+    <p class="meta">Mid-year discounting convention. Valuation only — no live market price is used.</p>
+    <p class="snapshot">This report is a frozen daily snapshot. →
+    <a href="2026-07-15.json">Inputs, probabilities &amp; evaluation behind this page</a></p>
+    <p class="gen">Generated 2026-07-15 · daily-intrinsic</p>
+  </footer>
+</main>
+<script type="application/json" id="dcf-input">{"symbol": "AAPL", "base_year": {"revenue": "416.2B", "ebit_margin": 0.32, "da_percent": 0.028}, "assumptions": {"tax_rate": 0.21}, "balance_sheet": {"cash": "35.9B", "debt": "78.3B", "diluted_shares": "14.8B"}, "scenarios": [{"name": "Bear", "probability": 0.25, "base_year": {"nwc_percent": 0.01}, "assumptions": {"growth_rates": [0.03, 0.029, 0.028, 0.027, 0.026, 0.025, 0.024, 0.023, 0.021, 0.02], "ebit_margins": [0.315, 0.314, 0.314, 0.313, 0.313, 0.312, 0.312, 0.311, 0.311, 0.31], "capex_percent": [0.032, 0.032, 0.031, 0.031, 0.031, 0.03, 0.03, 0.03, 0.029, 0.029]}, "wacc_inputs": {"risk_free_rate": 0.045, "equity_risk_premium": 0.043, "beta": 1.15, "cost_of_debt": 0.05, "debt_weight": 0.03, "equity_weight": 0.97}, "terminal": {"growth_rate": 0.02}}, {"name": "Base", "probability": 0.45, "base_year": {"nwc_percent": 0.0}, "assumptions": {"growth_rates": [0.06, 0.057, 0.054, 0.051, 0.048, 0.045, 0.042, 0.038, 0.034, 0.03], "ebit_margins": [0.32, 0.322, 0.323, 0.325, 0.326, 0.328, 0.329, 0.331, 0.333, 0.335], "capex_percent": [0.032, 0.032, 0.031, 0.031, 0.031, 0.031, 0.03, 0.03, 0.03, 0.03]}, "wacc_inputs": {"risk_free_rate": 0.045, "equity_risk_premium": 0.042, "beta": 1.1, "cost_of_debt": 0.048, "debt_weight": 0.02, "equity_weight": 0.98}, "terminal": {"growth_rate": 0.025}}, {"name": "Bull", "probability": 0.3, "base_year": {"nwc_percent": -0.01}, "assumptions": {"growth_rates": [0.08, 0.075, 0.071, 0.066, 0.062, 0.057, 0.053, 0.048, 0.044, 0.04], "ebit_margins": [0.325, 0.329, 0.333, 0.337, 0.341, 0.345, 0.349, 0.352, 0.356, 0.36], "capex_percent": [0.034, 0.034, 0.033, 0.033, 0.032, 0.032, 0.031, 0.031, 0.03, 0.03]}, "wacc_inputs": {"risk_free_rate": 0.044, "equity_risk_premium": 0.04, "beta": 1.05, "cost_of_debt": 0.046, "debt_weight": 0.02, "equity_weight": 0.98}, "terminal": {"growth_rate": 0.03}}]}</script>
+<script type="application/json" id="dcf-notes">{"symbol": "AAPL", "drivers": [{"key": "growth", "label": "Revenue growth (Yr 1\u201310)", "verdict": "Cautious but reasonable", "comment": "Apple is a mature hardware franchise; recent growth has run low-to-mid single digits, with Services (~12\u201314%) doing the heavy lifting over a roughly flat iPhone. Each scenario fades to mature growth by Yr 10. Base \u2248 trend; Bull assumes an AI-driven iPhone upgrade cycle plus continued Services mix-shift; Bear reflects hardware saturation and China softness."}, {"key": "margin", "label": "EBIT margin (Yr 1\u201310)", "verdict": "Defensible", "comment": "Apple already runs a ~32% operating margin. Expansion here is a Services-mix story (software/subscriptions carry far higher margins than hardware), not operating leverage on capex. Bull ending near 36% is achievable if Services keeps outgrowing hardware; Bear holds roughly flat."}, {"key": "capex", "label": "Capex (Yr 1\u201310, % rev)", "verdict": "Structurally low", "comment": "~3% of revenue \u2014 Apple is asset-light and outsources manufacturing, a deliberate contrast to the AI-infra names (MSFT/GOOGL at 15\u201328%). Not a swing factor here; the model barely moves on capex."}, {"key": "da", "label": "D&A (% of revenue)", "verdict": "Minor input", "comment": "Small and stable (~2.8% of revenue), consistent with the light asset base. Not a swing factor."}, {"key": "nwc", "label": "Net working capital (% of revenue)", "verdict": "A genuine Apple edge", "comment": "Apple famously runs *negative* working capital \u2014 payables and deferred revenue exceed receivables and inventory \u2014 so incremental growth is partly self-funding (a source of cash). Modeled from a small drag in Bear (+1%) to a small source in Bull (\u22121%). Realistic, and a real advantage over most peers."}, {"key": "tax", "label": "Tax rate", "verdict": "Slightly conservative", "comment": "21% US statutory; Apple's effective rate has run ~15\u201317%, so this trims NOPAT a touch (biases value down)."}, {"key": "rf", "label": "Risk-free rate", "comment": "\u2248 the 10-year Treasury yield. ~4.4\u20134.5% is consistent with current levels."}, {"key": "erp", "label": "Equity risk premium", "verdict": "Market-calibrated", "comment": "4.0\u20134.3% \u2248 Damodaran's implied ERP of 4.23% (2026). This is where current market conditions legitimately enter the model."}, {"key": "beta", "label": "Beta", "comment": "~1.05\u20131.15; Apple carries slightly more market sensitivity than the flagship software names. Lower in the Bull case (less perceived risk)."}, {"key": "wacc", "label": "WACC (derived)", "verdict": "Solid", "comment": "CAPM build-up nets to ~8.3\u20139.3% across scenarios \u2014 a touch higher than MSFT/GOOGL because of the higher beta and higher risk-free assumption. Lower WACC in Bull compounds with higher growth to lift value."}, {"key": "terminal_g", "label": "Terminal growth", "verdict": "Comfortable", "comment": "Terminal g should not exceed the ~4% risk-free / long-run nominal GDP. Even Bull's 3.0% sits well below that ceiling \u2014 appropriately, given a mature franchise."}, {"key": "probability", "label": "Scenario probability", "verdict": "Balanced-to-cautious (higher Bear weight)", "comment": "Weights are Bear 25% / Base 45% / Bull 30% \u2014 deliberately less bull-tilted than the AI-infra names. Apple's upside is not a capex-driven cloud re-acceleration but a hardware-refresh-plus-Services story, and the downside risks are concrete: iPhone maturity, China demand and supply-chain exposure, and the regulatory overhang on the Google search-payment (~$20B/yr of near-pure-profit Services revenue). The market's ~30\u00d7 earnings multiple against mid-single-digit growth already prices a quality/buyback premium and an AI supercycle; the honest judgment call is whether 25% is enough weight on the Bear path \u2014 arguably it should be higher, not lower."}]}</script>
+<script src="../../assets/dcf.js"></script>
+</body>
+</html>

@@ -11,11 +11,18 @@ probability-weighted intrinsic value are computed in the browser by
 docs/assets/dcf.js — a faithful port of the dcf skill's engine. The pages are
 valuation-only: there is no market price anywhere.
 
+Every report is a **static daily snapshot**: each run freezes its own copy of
+the inputs (including the scenario probabilities) *and* their evaluation notes,
+so a published report never changes when the shared reference JSON is later
+refreshed for a new date.
+
 Each run:
-  1. reads skills/dcf/reference/inputs/<SYMBOL>.json,
-  2. writes docs/reports/<symbol>/<date>.html (inputs embedded, math in JS),
-  3. records the run (with its inputs) in docs/reports/manifest.json,
-  4. rebuilds docs/index.html, which computes each report's intrinsic in JS.
+  1. reads skills/dcf/reference/inputs/<SYMBOL>.json (+ notes sidecar),
+  2. writes docs/reports/<symbol>/<date>.json — the frozen data copy of record
+     ({input, notes}), the report's own inspectable snapshot,
+  3. writes docs/reports/<symbol>/<date>.html (inputs+notes embedded, math in JS),
+  4. records the run (inputs + snapshot path) in docs/reports/manifest.json,
+  5. rebuilds docs/index.html, which computes each report's intrinsic in JS.
 """
 
 import argparse
@@ -60,10 +67,11 @@ def embed_json(data):
 # --------------------------------------------------------------------------- #
 # HTML rendering — pages carry inputs only; dcf.js fills the numbers.
 # --------------------------------------------------------------------------- #
-def render_report(symbol, data, date_str, notes=None):
+def render_report(symbol, data, date_str, notes=None, snapshot_name=None):
     sym = escape(symbol)
     method = escape(method_for(data))
     notes = notes or {}
+    snapshot_name = snapshot_name or f"{date_str}.json"
 
     drivers_section = ""
     if notes.get("drivers"):
@@ -83,7 +91,7 @@ def render_report(symbol, data, date_str, notes=None):
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{sym} valuation — {date_str} · plain-intrinsic</title>
+<title>{sym} valuation — {date_str} · daily-intrinsic</title>
 <link rel="stylesheet" href="../../assets/style.css">
 </head>
 <body>
@@ -132,7 +140,9 @@ def render_report(symbol, data, date_str, notes=None):
     snapshot using the <code>dcf</code> engine; it is a personal modeling
     exercise, not a recommendation to buy or sell any security.</p>
     <p class="meta">{escape(CONVENTIONS)}</p>
-    <p class="gen">Generated {date_str} · plain-intrinsic</p>
+    <p class="snapshot">This report is a frozen daily snapshot. →
+    <a href="{escape(snapshot_name)}">Inputs, probabilities &amp; evaluation behind this page</a></p>
+    <p class="gen">Generated {date_str} · daily-intrinsic</p>
   </footer>
 </main>
 <script type="application/json" id="dcf-input">{embed_json(data)}</script>{notes_script}
@@ -150,15 +160,16 @@ def render_index(entries):
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>plain-intrinsic · valuation reports</title>
+<title>daily-intrinsic · valuation reports</title>
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 <main class="wrap">
   <header class="site-head">
-    <h1>plain&#8209;intrinsic</h1>
+    <h1>daily&#8209;intrinsic</h1>
     <p class="tagline">Dated, back-of-the-envelope intrinsic-value reports.
-    One page per stock, per date. Valuation only — no market price.</p>
+    One page per stock, per date — each a frozen daily snapshot. Valuation only —
+    no market price.</p>
   </header>
 
   <div id="dcf-index"></div>
@@ -273,6 +284,7 @@ table.compact td { padding: 8px 12px; }
 .disclaimer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border);
   color: var(--muted); font-size: 13px; }
 .disclaimer code { background: var(--panel); padding: 1px 5px; border-radius: 4px; }
+.snapshot { margin-top: 12px; }
 .gen { margin-top: 8px; font-variant-numeric: tabular-nums; }
 
 @media (max-width: 560px) {
@@ -309,21 +321,40 @@ def main():
     if data is None:
         sys.exit(f"Error: no DCF input file for {symbol} at {input_path}")
 
-    # Optional commentary sidecar (drives the assumptions panel).
+    # Optional commentary sidecar (drives the assumptions panel + the
+    # scenario-probability evaluation).
     notes = load_json(DCF_REF / "notes" / f"{symbol}.json")
 
-    # Write report page (inputs embedded; math runs in the browser).
     out_dir = REPORTS_DIR / symbol.lower()
     out_dir.mkdir(parents=True, exist_ok=True)
-    out_file = out_dir / f"{date_str}.html"
-    out_file.write_text(render_report(symbol, data, date_str, notes))
 
-    # Update manifest + rebuild index + refresh stylesheet.
+    # 1. Freeze this report's own data copy: inputs (incl. scenario
+    #    probabilities) + their evaluation notes. This is the snapshot of
+    #    record — a published report never changes when the shared reference
+    #    JSON is later refreshed for a new date.
+    snapshot_name = f"{date_str}.json"
+    snapshot = {
+        "symbol": symbol,
+        "date": date_str,
+        "generated": dt.datetime.now().isoformat(timespec="seconds"),
+        "conventions": CONVENTIONS,
+        "input": data,
+        "notes": notes,
+    }
+    snapshot_file = out_dir / snapshot_name
+    snapshot_file.write_text(json.dumps(snapshot, indent=2))
+
+    # 2. Write report page (inputs+notes embedded; math runs in the browser).
+    out_file = out_dir / f"{date_str}.html"
+    out_file.write_text(render_report(symbol, data, date_str, notes, snapshot_name))
+
+    # 3. Update manifest + rebuild index + refresh stylesheet.
     entry = {
         "symbol": symbol,
         "date": date_str,
         "method": method_for(data),
         "path": f"reports/{symbol.lower()}/{date_str}.html",
+        "snapshot": f"reports/{symbol.lower()}/{snapshot_name}",
         "input": data,
     }
     entries = upsert_manifest(entry)
@@ -331,8 +362,9 @@ def main():
     (DOCS / "assets").mkdir(parents=True, exist_ok=True)
     (DOCS / "assets" / "style.css").write_text(STYLE)
 
-    print(f"✓ Report:  {out_file.relative_to(ROOT)}")
-    print(f"✓ Index:   {(DOCS / 'index.html').relative_to(ROOT)}")
+    print(f"✓ Snapshot: {snapshot_file.relative_to(ROOT)}")
+    print(f"✓ Report:   {out_file.relative_to(ROOT)}")
+    print(f"✓ Index:    {(DOCS / 'index.html').relative_to(ROOT)}")
     print(f"  {symbol}  {method_for(data)}  (intrinsic computed client-side)")
 
 

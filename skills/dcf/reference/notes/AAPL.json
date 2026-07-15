@@ -1,0 +1,75 @@
+{
+  "symbol": "AAPL",
+  "drivers": [
+    {
+      "key": "growth",
+      "label": "Revenue growth (Yr 1–10)",
+      "verdict": "Cautious but reasonable",
+      "comment": "Apple is a mature hardware franchise; recent growth has run low-to-mid single digits, with Services (~12–14%) doing the heavy lifting over a roughly flat iPhone. Each scenario fades to mature growth by Yr 10. Base ≈ trend; Bull assumes an AI-driven iPhone upgrade cycle plus continued Services mix-shift; Bear reflects hardware saturation and China softness."
+    },
+    {
+      "key": "margin",
+      "label": "EBIT margin (Yr 1–10)",
+      "verdict": "Defensible",
+      "comment": "Apple already runs a ~32% operating margin. Expansion here is a Services-mix story (software/subscriptions carry far higher margins than hardware), not operating leverage on capex. Bull ending near 36% is achievable if Services keeps outgrowing hardware; Bear holds roughly flat."
+    },
+    {
+      "key": "capex",
+      "label": "Capex (Yr 1–10, % rev)",
+      "verdict": "Structurally low",
+      "comment": "~3% of revenue — Apple is asset-light and outsources manufacturing, a deliberate contrast to the AI-infra names (MSFT/GOOGL at 15–28%). Not a swing factor here; the model barely moves on capex."
+    },
+    {
+      "key": "da",
+      "label": "D&A (% of revenue)",
+      "verdict": "Minor input",
+      "comment": "Small and stable (~2.8% of revenue), consistent with the light asset base. Not a swing factor."
+    },
+    {
+      "key": "nwc",
+      "label": "Net working capital (% of revenue)",
+      "verdict": "A genuine Apple edge",
+      "comment": "Apple famously runs *negative* working capital — payables and deferred revenue exceed receivables and inventory — so incremental growth is partly self-funding (a source of cash). Modeled from a small drag in Bear (+1%) to a small source in Bull (−1%). Realistic, and a real advantage over most peers."
+    },
+    {
+      "key": "tax",
+      "label": "Tax rate",
+      "verdict": "Slightly conservative",
+      "comment": "21% US statutory; Apple's effective rate has run ~15–17%, so this trims NOPAT a touch (biases value down)."
+    },
+    {
+      "key": "rf",
+      "label": "Risk-free rate",
+      "comment": "≈ the 10-year Treasury yield. ~4.4–4.5% is consistent with current levels."
+    },
+    {
+      "key": "erp",
+      "label": "Equity risk premium",
+      "verdict": "Market-calibrated",
+      "comment": "4.0–4.3% ≈ Damodaran's implied ERP of 4.23% (2026). This is where current market conditions legitimately enter the model."
+    },
+    {
+      "key": "beta",
+      "label": "Beta",
+      "comment": "~1.05–1.15; Apple carries slightly more market sensitivity than the flagship software names. Lower in the Bull case (less perceived risk)."
+    },
+    {
+      "key": "wacc",
+      "label": "WACC (derived)",
+      "verdict": "Solid",
+      "comment": "CAPM build-up nets to ~8.3–9.3% across scenarios — a touch higher than MSFT/GOOGL because of the higher beta and higher risk-free assumption. Lower WACC in Bull compounds with higher growth to lift value."
+    },
+    {
+      "key": "terminal_g",
+      "label": "Terminal growth",
+      "verdict": "Comfortable",
+      "comment": "Terminal g should not exceed the ~4% risk-free / long-run nominal GDP. Even Bull's 3.0% sits well below that ceiling — appropriately, given a mature franchise."
+    },
+    {
+      "key": "probability",
+      "label": "Scenario probability",
+      "verdict": "Balanced-to-cautious (higher Bear weight)",
+      "comment": "Weights are Bear 25% / Base 45% / Bull 30% — deliberately less bull-tilted than the AI-infra names. Apple's upside is not a capex-driven cloud re-acceleration but a hardware-refresh-plus-Services story, and the downside risks are concrete: iPhone maturity, China demand and supply-chain exposure, and the regulatory overhang on the Google search-payment (~$20B/yr of near-pure-profit Services revenue). The market's ~30× earnings multiple against mid-single-digit growth already prices a quality/buyback premium and an AI supercycle; the honest judgment call is whether 25% is enough weight on the Bear path — arguably it should be higher, not lower."
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 /*
- * plain-intrinsic — client-side DCF engine.
+ * daily-intrinsic — client-side DCF engine.
  *
  * A faithful port of skills/dcf/scripts/dcf_calculator.py (FCFF methodology),
  * using the mid-year discounting convention (cash flows arrive mid-year on

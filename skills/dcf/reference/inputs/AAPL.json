@@ -3,45 +3,184 @@
   "base_year": {
     "revenue": "416.2B",
     "ebit_margin": 0.32,
-    "da_percent": 0.028,
-    "capex_percent": 0.031,
-    "nwc_percent": 0
+    "da_percent": 0.028
   },
   "assumptions": {
-    "tax_rate": 0.21,
-    "growth_rates": [
-      0.064,
-      0.055,
-      0.046,
-      0.039,
-      0.034,
-      0.029,
-      0.024
-    ],
-    "ebit_margins": [
-      0.32,
-      0.32,
-      0.32,
-      0.32,
-      0.32,
-      0.32,
-      0.32
-    ]
-  },
-  "wacc_inputs": {
-    "risk_free_rate": 0.045,
-    "equity_risk_premium": 0.05,
-    "beta": 1.11,
-    "cost_of_debt": 0.05,
-    "debt_weight": 0.02,
-    "equity_weight": 0.98
-  },
-  "terminal": {
-    "growth_rate": 0.025
+    "tax_rate": 0.21
   },
   "balance_sheet": {
     "cash": "35.9B",
     "debt": "78.3B",
     "diluted_shares": "14.8B"
-  }
+  },
+  "scenarios": [
+    {
+      "name": "Bear",
+      "probability": 0.25,
+      "base_year": {
+        "nwc_percent": 0.01
+      },
+      "assumptions": {
+        "growth_rates": [
+          0.03,
+          0.029,
+          0.028,
+          0.027,
+          0.026,
+          0.025,
+          0.024,
+          0.023,
+          0.021,
+          0.02
+        ],
+        "ebit_margins": [
+          0.315,
+          0.314,
+          0.314,
+          0.313,
+          0.313,
+          0.312,
+          0.312,
+          0.311,
+          0.311,
+          0.31
+        ],
+        "capex_percent": [
+          0.032,
+          0.032,
+          0.031,
+          0.031,
+          0.031,
+          0.03,
+          0.03,
+          0.03,
+          0.029,
+          0.029
+        ]
+      },
+      "wacc_inputs": {
+        "risk_free_rate": 0.045,
+        "equity_risk_premium": 0.043,
+        "beta": 1.15,
+        "cost_of_debt": 0.05,
+        "debt_weight": 0.03,
+        "equity_weight": 0.97
+      },
+      "terminal": {
+        "growth_rate": 0.02
+      }
+    },
+    {
+      "name": "Base",
+      "probability": 0.45,
+      "base_year": {
+        "nwc_percent": 0.0
+      },
+      "assumptions": {
+        "growth_rates": [
+          0.06,
+          0.057,
+          0.054,
+          0.051,
+          0.048,
+          0.045,
+          0.042,
+          0.038,
+          0.034,
+          0.03
+        ],
+        "ebit_margins": [
+          0.32,
+          0.322,
+          0.323,
+          0.325,
+          0.326,
+          0.328,
+          0.329,
+          0.331,
+          0.333,
+          0.335
+        ],
+        "capex_percent": [
+          0.032,
+          0.032,
+          0.031,
+          0.031,
+          0.031,
+          0.031,
+          0.03,
+          0.03,
+          0.03,
+          0.03
+        ]
+      },
+      "wacc_inputs": {
+        "risk_free_rate": 0.045,
+        "equity_risk_premium": 0.042,
+        "beta": 1.1,
+        "cost_of_debt": 0.048,
+        "debt_weight": 0.02,
+        "equity_weight": 0.98
+      },
+      "terminal": {
+        "growth_rate": 0.025
+      }
+    },
+    {
+      "name": "Bull",
+      "probability": 0.3,
+      "base_year": {
+        "nwc_percent": -0.01
+      },
+      "assumptions": {
+        "growth_rates": [
+          0.08,
+          0.075,
+          0.071,
+          0.066,
+          0.062,
+          0.057,
+          0.053,
+          0.048,
+          0.044,
+          0.04
+        ],
+        "ebit_margins": [
+          0.325,
+          0.329,
+          0.333,
+          0.337,
+          0.341,
+          0.345,
+          0.349,
+          0.352,
+          0.356,
+          0.36
+        ],
+        "capex_percent": [
+          0.034,
+          0.034,
+          0.033,
+          0.033,
+          0.032,
+          0.032,
+          0.031,
+          0.031,
+          0.03,
+          0.03
+        ]
+      },
+      "wacc_inputs": {
+        "risk_free_rate": 0.044,
+        "equity_risk_premium": 0.04,
+        "beta": 1.05,
+        "cost_of_debt": 0.046,
+        "debt_weight": 0.02,
+        "equity_weight": 0.98
+      },
+      "terminal": {
+        "growth_rate": 0.03
+      }
+    }
+  ]
 }
