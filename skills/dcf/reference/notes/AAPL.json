@@ -4,14 +4,14 @@
     {
       "key": "growth",
       "label": "Revenue growth (Yr 1–10)",
-      "verdict": "Re-read upward (Services + AI cycle)",
-      "comment": "The earlier read treated Apple as a flat hardware franchise fading to ~3%. That under-modeled two things the market is capitalizing: Services compounding at low-double-digits (now a large, sticky share of the mix) and an AI-driven iPhone upgrade cycle refreshing a >1.5B-device installed base. Base now starts ~8% and fades to 4%; Bull runs a genuine supercycle (~12% → 5%); Bear still reflects saturation and China risk (~4% → 2%)."
+      "verdict": "Near-term set to Street consensus",
+      "comment": "The earlier 8% opener lagged a full year of realized-plus-expected growth. Base now opens at ~15% (FY26 consensus), ~9% (FY27), ~7.6% (FY28), then fades to 4% by Yr 10. The base-year revenue stays anchored to reported FY2025 ($416.2B) with growth applied on top, so there is no double-count with the forward figure. Bull runs a sustained AI/Services supercycle (~16% → 5%); Bear stays skeptical (~6% → 2%)."
     },
     {
       "key": "margin",
       "label": "EBIT margin (Yr 1–10)",
-      "verdict": "Services mix drives expansion",
-      "comment": "This is the other half of what was missing. Services gross margins run ~70% versus ~37% for hardware, so as Services outgrows product the *blended* operating margin should climb — not stay pinned near 32%. Base expands toward 37% over the decade; Bull toward 40% if AI features accelerate the mix-shift. Defensible given the trajectory, though 40% would be an all-time high."
+      "verdict": "Services mix — ceiling raised",
+      "comment": "Q1 FY2026 operating margin already ran ~35% and blended gross margin ~49%, with Services at ~77% gross margin versus ~39% for products. As Services (>25% of revenue, growing double-digits) climbs, the blended operating margin should too. Base expands toward 38%; Bull toward 43%. Higher than the prior read and defensible on the trajectory, though the Bull ceiling is at the aggressive end."
     },
     {
       "key": "capex",
@@ -34,19 +34,19 @@
     {
       "key": "netcash",
       "label": "Net cash (cash + securities − debt)",
-      "verdict": "Corrected → this was the model's clear error",
-      "comment": "The previous input counted only $35.9B of cash and so treated Apple — the most cash-rich company on earth — as a NET BORROWER of ~$42B. It ignored Apple's ~$120B marketable-securities portfolio (current + long-term investments). Cash is now stated as cash + marketable securities (~$156.6B), leaving Apple net-cash by ~$78B. The fix adds the whole ~$120B swing (~$8/share) straight to equity value. Real, unambiguous, and it should never have been missing."
+      "verdict": "Corrected to latest filing (~$62B net)",
+      "comment": "Now uses Q2 FY2026 figures: cash + marketable securities ~$146.7B less total debt ~$84.7B. The earlier $78.3B debt captured only non-current term debt and omitted current maturities + commercial paper; the earlier $156.6B cash was the stale FY2024 total. Net cash is Apple's stated ~$62B, down from the ~$78B previously implied — so this correction trims ~$1/share. A credibility fix, not a gap-closer."
     },
     {
       "key": "tax",
       "label": "Tax rate",
-      "verdict": "Slightly conservative",
-      "comment": "21% US statutory; Apple's effective rate has run ~15–17%, so this trims NOPAT a touch (biases value down)."
+      "verdict": "Corrected → was materially too high",
+      "comment": "The prior 21% used the US *statutory* federal rate; Apple's *effective* rate is far lower — 15.6% in FY2025 and ~17% TTM/guided (FY2024's 24.1% was distorted by the one-time ~$10.2B EU State Aid charge and is not representative). Set to a normalized 16%. This lifts NOPAT/FCF by ~6% across every scenario — the single highest-value, least-controversial correction, and it should never have been at statutory."
     },
     {
       "key": "rf",
       "label": "Risk-free rate",
-      "comment": "≈ the 10-year Treasury yield. ~4.4–4.5% is consistent with current levels."
+      "comment": "≈ the 10-year Treasury yield. Bumped to ~4.6%, matching mid-2026 levels (a touch above the prior 4.4–4.5%)."
     },
     {
       "key": "erp",
@@ -57,25 +57,25 @@
     {
       "key": "beta",
       "label": "Beta",
-      "comment": "~1.0–1.2; Apple carries slightly more market sensitivity than the flagship software names. Lower in the Bull case (a quality/safety bid compresses perceived risk)."
+      "comment": "Lowered to ~0.95–1.10 (third-party estimates run 0.83–1.10). Apple's mean-reverting, quality profile argues for the lower half; Bull uses 0.95."
     },
     {
       "key": "wacc",
       "label": "WACC (derived)",
-      "verdict": "Solid — and the swing factor vs the market",
-      "comment": "CAPM build-up nets to ~8.3–9.5% across scenarios. A durable, cash-generative franchise like Apple arguably earns a lower discount rate than this; every 1% off WACC lifts the terminal value materially. If the market is applying a ~7% 'quality' discount rate, that alone explains a large part of the gap to a fundamentals DCF."
+      "verdict": "Base held at CAPM ~8.9% (deliberate anchor)",
+      "comment": "CAPM build-up nets to ~8.2–9.2% across scenarios. The sell-side 'quality compounder' camp applies a sub-8% (even ~7%) discount rate to Apple, which is the biggest single lever separating a fundamentals DCF from the market. We deliberately keep the Base case at a CAPM-derived ~8.9% rather than importing that concession — so the model stays a conservative anchor and does not simply assume the re-rating is permanent."
     },
     {
       "key": "terminal_g",
       "label": "Terminal growth",
       "verdict": "Base OK · Bull at the ceiling",
-      "comment": "Terminal g should not exceed the ~4% risk-free / long-run nominal GDP. Bull's 3.5% now sits right at that edge — appropriate only if you truly believe the AI/Services franchise still out-grows the economy in perpetuity."
+      "comment": "Terminal g should not exceed the ~4% risk-free / long-run nominal GDP. Bull's 3.5% sits right at that edge — appropriate only if you truly believe the AI/Services franchise still out-grows the economy in perpetuity."
     },
     {
       "key": "probability",
       "label": "Scenario probability",
-      "verdict": "Re-tilted bullish to match the cohort · but the market prices ~100% Bull",
-      "comment": "Weights are now Bear 15% / Base 45% / Bull 40%, in line with the AI cohort (GOOGL 15/45/40, MSFT 13/45/42). The earlier 20/45/35 singled Apple out as more bearish without a strong reason once you accept the same AI/Services re-rating that drives the others — so this evens it up. But note the ceiling: a probability-weighted value can never exceed its best scenario, so weighting caps out at the Bull case (~$294) no matter how bullish the tilt (even 100% Bull only reaches ~$294). A market at ~$300 is therefore valuing Apple at essentially 100% Bull — richer than even this cohort-consistent weighting. The remaining gap is not a weights problem: it says the market's *base case* is our Bull — double-digit growth, ~40% margins, and a quality-level (~7%) discount rate. Closing it would mean asserting those as the central case, i.e. agreeing the fundamentals justify the price rather than just weighting scenarios."
+      "verdict": "Corrected scenarios now bracket the market",
+      "comment": "With the factual fixes in (16% effective tax, near-term growth at Street consensus, Services-led margin expansion), the scenarios finally span the tape: Base ~$220, Bull ~$334, weighted ~$253 at Bear 15 / Base 45 / Bull 40. Two reads worth noting. First, Base ~$220 lands almost exactly on Apple's own 10-year-average P/E fair value (~25× forward EPS) — a good independent sanity check. Second, the market now sits between our Base and Bull (roughly a 70%-Bull weighting), no longer beyond the model's reach — so the earlier 'weights can't get there' ceiling was really a symptom of the wrong tax rate and stale growth, not the weights. The remaining distance from Base to price (~$95, ~30%) is multiple re-rating above Apple's decade norm — the AI/Services quality bid plus the ~2.4%/yr buyback — which a fundamentals DCF can only reproduce by conceding a sub-8% discount rate we chose not to assume."
     }
   ]
 }
