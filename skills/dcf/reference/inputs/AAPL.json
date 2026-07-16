@@ -13,6 +13,196 @@
     "debt": "84.7B",
     "diluted_shares": "14.8B"
   },
+  "buyback": {
+    "annual_reduction": 0.024,
+    "horizons": [
+      5,
+      10
+    ],
+    "source": "FY2025 10-K: $89.3B repurchased (~2.4% of shares/yr); new $100B authorization approved Apr 30, 2026.",
+    "note": "Apple retires ~2.4% of its shares a year. The probability-weighted fair value above divides by *today's* share count and already prices the cash Apple spends on buybacks (it sits in the FCFF stream). Shrinking the denominator as shares retire shows the per-share concentration continuing holders enjoy — but it is genuinely value-additive only when repurchases happen *below* intrinsic value. With the market above our intrinsic, the buybacks are technically dilutive to per-share value, so treat these buyback-adjusted figures as an illustrative upper bound, not the fair value."
+  },
+  "wacc_sensitivity": {
+    "rates": [
+      0.07,
+      0.075,
+      0.08,
+      0.085,
+      0.09,
+      0.095
+    ],
+    "note": "Because ~75% of the value sits in the terminal value, the discount rate is the largest single swing factor. Our scenarios use a CAPM build-up with a ~50bp quality/buyback premium (Base ~8.4%). The sell-side 'quality compounder' camp applies ~7–7.5%; at those rates the weighted value re-rates toward the market — which is the crux of the whole valuation debate."
+  },
+  "scenarios": [
+    {
+      "name": "Bear",
+      "probability": 0.15,
+      "base_year": {
+        "nwc_percent": 0.01
+      },
+      "assumptions": {
+        "growth_rates": [
+          0.06,
+          0.05,
+          0.045,
+          0.04,
+          0.036,
+          0.032,
+          0.028,
+          0.025,
+          0.022,
+          0.02
+        ],
+        "ebit_margins": [
+          0.32,
+          0.32,
+          0.321,
+          0.322,
+          0.322,
+          0.323,
+          0.323,
+          0.324,
+          0.324,
+          0.325
+        ],
+        "capex_percent": [
+          0.032,
+          0.032,
+          0.031,
+          0.031,
+          0.031,
+          0.03,
+          0.03,
+          0.03,
+          0.029,
+          0.029
+        ]
+      },
+      "wacc_inputs": {
+        "risk_free_rate": 0.046,
+        "equity_risk_premium": 0.043,
+        "beta": 1.05,
+        "cost_of_debt": 0.05,
+        "debt_weight": 0.03,
+        "equity_weight": 0.97
+      },
+      "terminal": {
+        "growth_rate": 0.02
+      }
+    },
+    {
+      "name": "Base",
+      "probability": 0.45,
+      "base_year": {
+        "nwc_percent": 0.0
+      },
+      "assumptions": {
+        "growth_rates": [
+          0.15,
+          0.09,
+          0.076,
+          0.068,
+          0.06,
+          0.054,
+          0.048,
+          0.044,
+          0.042,
+          0.04
+        ],
+        "ebit_margins": [
+          0.33,
+          0.339,
+          0.347,
+          0.355,
+          0.362,
+          0.369,
+          0.375,
+          0.381,
+          0.386,
+          0.39
+        ],
+        "capex_percent": [
+          0.032,
+          0.032,
+          0.031,
+          0.031,
+          0.031,
+          0.031,
+          0.03,
+          0.03,
+          0.03,
+          0.03
+        ]
+      },
+      "wacc_inputs": {
+        "risk_free_rate": 0.046,
+        "equity_risk_premium": 0.042,
+        "beta": 0.92,
+        "cost_of_debt": 0.048,
+        "debt_weight": 0.02,
+        "equity_weight": 0.98
+      },
+      "terminal": {
+        "growth_rate": 0.03
+      }
+    },
+    {
+      "name": "Bull",
+      "probability": 0.4,
+      "base_year": {
+        "nwc_percent": -0.01
+      },
+      "assumptions": {
+        "growth_rates": [
+          0.16,
+          0.11,
+          0.095,
+          0.085,
+          0.076,
+          0.068,
+          0.062,
+          0.056,
+          0.052,
+          0.05
+        ],
+        "ebit_margins": [
+          0.34,
+          0.35,
+          0.36,
+          0.37,
+          0.385,
+          0.4,
+          0.41,
+          0.42,
+          0.425,
+          0.43
+        ],
+        "capex_percent": [
+          0.034,
+          0.034,
+          0.033,
+          0.033,
+          0.032,
+          0.032,
+          0.031,
+          0.031,
+          0.03,
+          0.03
+        ]
+      },
+      "wacc_inputs": {
+        "risk_free_rate": 0.045,
+        "equity_risk_premium": 0.04,
+        "beta": 0.85,
+        "cost_of_debt": 0.046,
+        "debt_weight": 0.02,
+        "equity_weight": 0.98
+      },
+      "terminal": {
+        "growth_rate": 0.035
+      }
+    }
+  ],
   "consensus": {
     "label": "Street consensus (FY26–FY28), same engine",
     "source": "S&P Global / Visible Alpha aggregate of ~38–41 analysts (Jul 2026): FY26 revenue ~$478B (+15%), FY27 ~$522B, FY28 ~$562B; EPS $8.76 / $9.69 / $10.91.",
@@ -69,175 +259,5 @@
     "terminal": {
       "growth_rate": 0.03
     }
-  },
-  "scenarios": [
-    {
-      "name": "Bear",
-      "probability": 0.15,
-      "base_year": {
-        "nwc_percent": 0.01
-      },
-      "assumptions": {
-        "growth_rates": [
-          0.06,
-          0.05,
-          0.045,
-          0.04,
-          0.036,
-          0.032,
-          0.028,
-          0.025,
-          0.022,
-          0.02
-        ],
-        "ebit_margins": [
-          0.32,
-          0.32,
-          0.321,
-          0.322,
-          0.322,
-          0.323,
-          0.323,
-          0.324,
-          0.324,
-          0.325
-        ],
-        "capex_percent": [
-          0.032,
-          0.032,
-          0.031,
-          0.031,
-          0.031,
-          0.03,
-          0.03,
-          0.03,
-          0.029,
-          0.029
-        ]
-      },
-      "wacc_inputs": {
-        "risk_free_rate": 0.046,
-        "equity_risk_premium": 0.043,
-        "beta": 1.1,
-        "cost_of_debt": 0.05,
-        "debt_weight": 0.03,
-        "equity_weight": 0.97
-      },
-      "terminal": {
-        "growth_rate": 0.02
-      }
-    },
-    {
-      "name": "Base",
-      "probability": 0.45,
-      "base_year": {
-        "nwc_percent": 0.0
-      },
-      "assumptions": {
-        "growth_rates": [
-          0.15,
-          0.09,
-          0.076,
-          0.068,
-          0.06,
-          0.054,
-          0.048,
-          0.044,
-          0.042,
-          0.04
-        ],
-        "ebit_margins": [
-          0.33,
-          0.338,
-          0.345,
-          0.352,
-          0.358,
-          0.363,
-          0.368,
-          0.372,
-          0.376,
-          0.38
-        ],
-        "capex_percent": [
-          0.032,
-          0.032,
-          0.031,
-          0.031,
-          0.031,
-          0.031,
-          0.03,
-          0.03,
-          0.03,
-          0.03
-        ]
-      },
-      "wacc_inputs": {
-        "risk_free_rate": 0.046,
-        "equity_risk_premium": 0.042,
-        "beta": 1.05,
-        "cost_of_debt": 0.048,
-        "debt_weight": 0.02,
-        "equity_weight": 0.98
-      },
-      "terminal": {
-        "growth_rate": 0.03
-      }
-    },
-    {
-      "name": "Bull",
-      "probability": 0.4,
-      "base_year": {
-        "nwc_percent": -0.01
-      },
-      "assumptions": {
-        "growth_rates": [
-          0.16,
-          0.11,
-          0.095,
-          0.085,
-          0.076,
-          0.068,
-          0.062,
-          0.056,
-          0.052,
-          0.05
-        ],
-        "ebit_margins": [
-          0.34,
-          0.35,
-          0.36,
-          0.37,
-          0.385,
-          0.4,
-          0.41,
-          0.42,
-          0.425,
-          0.43
-        ],
-        "capex_percent": [
-          0.034,
-          0.034,
-          0.033,
-          0.033,
-          0.032,
-          0.032,
-          0.031,
-          0.031,
-          0.03,
-          0.03
-        ]
-      },
-      "wacc_inputs": {
-        "risk_free_rate": 0.045,
-        "equity_risk_premium": 0.04,
-        "beta": 0.95,
-        "cost_of_debt": 0.046,
-        "debt_weight": 0.02,
-        "equity_weight": 0.98
-      },
-      "terminal": {
-        "growth_rate": 0.035
-      }
-    }
-  ]
+  }
 }

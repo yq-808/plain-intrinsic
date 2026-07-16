@@ -69,7 +69,7 @@
   // average, half-way through it, so it is discounted at (n - 0.5) rather than
   // n. For a Gordon-growth terminal value the continuing value is likewise
   // discounted at (N - 0.5). Net effect ~ +(1+WACC)^0.5, about +4%.
-  function calculateDcf(data) {
+  function calculateDcf(data, waccOverride) {
     var by = data.base_year;
     var a = data.assumptions;
 
@@ -93,7 +93,7 @@
     var shares = parseValue(bs.diluted_shares);
 
     var w = calculateWacc(data.wacc_inputs, taxRate);
-    var wacc = w.wacc;
+    var wacc = (waccOverride !== undefined && waccOverride !== null) ? waccOverride : w.wacc;
 
     var years = growthRates.length;
     var fcffs = [];
@@ -479,6 +479,92 @@
     if (c.source) mount.appendChild(el("p", "meta", "Source: " + c.source));
   }
 
+  // Discount-rate sensitivity: recompute every scenario's intrinsic (and the
+  // probability-weighted value) across a range of uniform WACCs, holding all
+  // cash-flow assumptions fixed. Rendered only when the input carries a
+  // `wacc_sensitivity` block. Uses the waccOverride arg on calculateDcf.
+  function renderWaccSensitivity(data) {
+    var mount = document.getElementById("dcf-wacc");
+    if (!mount || !data.wacc_sensitivity || !data.scenarios) return;
+    mount.innerHTML = "";
+    var cfg = data.wacc_sensitivity;
+    var rates = cfg.rates || [0.07, 0.075, 0.08, 0.085, 0.09, 0.095];
+    var scen = normalizeScenarios(data.scenarios);
+    var merged = scen.map(function (s) { return { s: s, data: buildScenarioData(data, s) }; });
+
+    var scroll = el("div", "table-scroll");
+    var table = document.createElement("table");
+    var thead = document.createElement("thead");
+    var htr = document.createElement("tr");
+    htr.appendChild(el("th", null, "Discount rate"));
+    scen.forEach(function (s) { htr.appendChild(el("th", "num", s.name)); });
+    htr.appendChild(el("th", "num", "Weighted"));
+    thead.appendChild(htr);
+    table.appendChild(thead);
+    var tb = document.createElement("tbody");
+    rates.forEach(function (rate) {
+      var tr = document.createElement("tr");
+      tr.appendChild(el("td", "name", pct(rate)));
+      var w = 0;
+      merged.forEach(function (m) {
+        var r = calculateDcf(m.data, rate);
+        tr.appendChild(el("td", "num", price(r.intrinsicPrice)));
+        w += r.intrinsicPrice * m.s.probability;
+      });
+      tr.appendChild(el("td", "num strong", price(w)));
+      tb.appendChild(tr);
+    });
+    table.appendChild(tb);
+    scroll.appendChild(table);
+    mount.appendChild(scroll);
+    if (cfg.note) mount.appendChild(el("p", "read-note", cfg.note));
+  }
+
+  // Buyback / share-count view: shows how the per-share figure moves as Apple
+  // retires ~N%/yr of its shares. IMPORTANT: an FCFF DCF already prices the
+  // cash spent on buybacks, so shrinking the denominator is only genuinely
+  // accretive when repurchases happen below intrinsic — see the note. Rendered
+  // only when the input carries a `buyback` block.
+  function renderBuyback(data, weightedIntrinsic) {
+    var mount = document.getElementById("dcf-buyback");
+    if (!mount || !data.buyback) return;
+    mount.innerHTML = "";
+    var b = data.buyback;
+    var rate = b.annual_reduction || 0;
+    var shares0 = parseValue((data.balance_sheet || {}).diluted_shares);
+    var horizons = b.horizons || [5, 10];
+
+    var scroll = el("div", "table-scroll");
+    var table = document.createElement("table");
+    table.className = "compact";
+    var thead = document.createElement("thead");
+    var htr = document.createElement("tr");
+    htr.appendChild(el("th", null, "Horizon"));
+    htr.appendChild(el("th", "num", "Diluted shares"));
+    htr.appendChild(el("th", "num", "Buyback-adj. weighted"));
+    thead.appendChild(htr);
+    table.appendChild(thead);
+    var tb = document.createElement("tbody");
+    var tr0 = document.createElement("tr");
+    tr0.appendChild(el("td", "name", "Today"));
+    tr0.appendChild(el("td", "num", (shares0 / 1e9).toFixed(2) + "B"));
+    tr0.appendChild(el("td", "num strong", price(weightedIntrinsic)));
+    tb.appendChild(tr0);
+    horizons.forEach(function (yr) {
+      var f = Math.pow(1 - rate, yr);
+      var tr = document.createElement("tr");
+      tr.appendChild(el("td", "name", "+" + yr + " yr"));
+      tr.appendChild(el("td", "num", (shares0 * f / 1e9).toFixed(2) + "B"));
+      tr.appendChild(el("td", "num strong", price(weightedIntrinsic / f)));
+      tb.appendChild(tr);
+    });
+    table.appendChild(tb);
+    scroll.appendChild(table);
+    mount.appendChild(scroll);
+    if (b.note) mount.appendChild(el("p", "read-note", b.note));
+    if (b.source) mount.appendChild(el("p", "meta", "Source: " + b.source));
+  }
+
   function renderReport(data, notes) {
     notes = notes || {};
     var evald = evaluate(data);
@@ -490,6 +576,8 @@
 
     renderScenarioTable(evald.scenarios, evald.intrinsic);
     renderConsensus(data, evald.intrinsic);
+    renderWaccSensitivity(data);
+    renderBuyback(data, evald.intrinsic);
     renderDrivers(notes.drivers, evald.scenarios);
     renderKeyInputs(data);
     return evald;

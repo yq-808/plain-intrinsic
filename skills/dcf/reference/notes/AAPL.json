@@ -11,7 +11,7 @@
       "key": "margin",
       "label": "EBIT margin (Yr 1–10)",
       "verdict": "Services mix — ceiling raised",
-      "comment": "Q1 FY2026 operating margin already ran ~35% and blended gross margin ~49%, with Services at ~77% gross margin versus ~39% for products. As Services (>25% of revenue, growing double-digits) climbs, the blended operating margin should too. Base expands toward 38%; Bull toward 43%. Higher than the prior read and defensible on the trajectory, though the Bull ceiling is at the aggressive end."
+      "comment": "Q1 FY2026 operating margin already ran ~35% and blended gross margin ~49%, with Services at ~75% gross margin (on ~$109B, growing ~14%) versus ~39% for products. As Services climbs past ~26% of revenue the blended operating margin should keep drifting up. Base now expands toward 39%; Bull toward 43%. Justified by the mix-shift, though the Bull ceiling is at the aggressive end for a hardware-anchored franchise."
     },
     {
       "key": "capex",
@@ -57,13 +57,14 @@
     {
       "key": "beta",
       "label": "Beta",
-      "comment": "Lowered to ~0.95–1.10 (third-party estimates run 0.83–1.10). Apple's mean-reverting, quality profile argues for the lower half; Bull uses 0.95."
+      "verdict": "Lowered — quality/buyback premium",
+      "comment": "Now Bear 1.05 / Base 0.92 / Bull 0.85, toward the low end of the 0.83–1.10 range providers publish. The reduction is deliberate: Apple's net-cash balance sheet, ~$90B/yr buyback and durable cash flows lower the risk investors bear, which is the legitimate channel through which capital returns cut the discount rate (a ~50bp 'quality premium')."
     },
     {
       "key": "wacc",
       "label": "WACC (derived)",
-      "verdict": "Base held at CAPM ~8.9% (deliberate anchor)",
-      "comment": "CAPM build-up nets to ~8.2–9.2% across scenarios. The sell-side 'quality compounder' camp applies a sub-8% (even ~7%) discount rate to Apple, which is the biggest single lever separating a fundamentals DCF from the market. We deliberately keep the Base case at a CAPM-derived ~8.9% rather than importing that concession — so the model stays a conservative anchor and does not simply assume the re-rating is permanent."
+      "verdict": "~50bp quality premium applied · Base ~8.4%",
+      "comment": "CAPM build-up with a ~50bp quality/buyback premium (via lower beta) nets to ~7.8–9.0% across scenarios; Base ~8.4%. This is the legitimate way capital returns enter the model — through lower risk, not a hand-waved discount. We still stop short of the sell-side ~7% 'quality rate'; the discount-rate sensitivity panel shows the full 7.0–9.5% range so the reader can see exactly how much of the gap to the market is a WACC choice (most of it)."
     },
     {
       "key": "terminal_g",

@@ -92,6 +92,26 @@ def render_report(symbol, data, date_str, notes=None, snapshot_name=None):
   </section>
 """
 
+    wacc_section = ""
+    if data.get("wacc_sensitivity"):
+        wacc_section = """
+  <section>
+    <h2>Discount-rate sensitivity</h2>
+    <p class="meta">Each scenario's intrinsic value at a range of uniform discount rates, holding all cash-flow assumptions fixed. Terminal value dominates, so WACC is the single biggest swing factor.</p>
+    <div id="dcf-wacc"></div>
+  </section>
+"""
+
+    buyback_section = ""
+    if data.get("buyback"):
+        buyback_section = """
+  <section>
+    <h2>Buyback &amp; share count</h2>
+    <p class="meta">How the per-share figure moves as the share count shrinks — shown for completeness, with an important caveat below.</p>
+    <div id="dcf-buyback"></div>
+  </section>
+"""
+
     notes_script = ""
     if notes:
         notes_script = f'\n<script type="application/json" id="dcf-notes">{embed_json(notes)}</script>'
@@ -134,7 +154,7 @@ def render_report(symbol, data, date_str, notes=None, snapshot_name=None):
     <noscript><p class="meta">This report computes its valuation in the browser;
     enable JavaScript to see the numbers.</p></noscript>
   </section>
-{consensus_section}{drivers_section}
+{consensus_section}{wacc_section}{buyback_section}{drivers_section}
   <section>
     <h2>Key inputs</h2>
     <div class="table-scroll">
