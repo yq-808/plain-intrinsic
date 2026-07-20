@@ -45,7 +45,7 @@ MANIFEST = REPORTS_DIR / "manifest.json"
 
 # Per-method conventions line (shown on each page + frozen in the snapshot).
 DCF_CONVENTIONS = "Mid-year discounting convention. Valuation only — no live market price is used."
-COMPS_CONVENTIONS = "Peer-multiple relative valuation, probability-weighted across scenarios. Valuation only — no live market price is used."
+COMPS_CONVENTIONS = "Peer-multiple relative valuation — fair value is the average of the per-multiple implied prices. Valuation only — no live market price is used."
 
 
 def is_comps(data):
@@ -216,27 +216,11 @@ def render_report(symbol, data, date_str, notes=None, snapshot_name=None):
 def render_comps_report(symbol, data, date_str, notes=None, snapshot_name=None):
     sym = escape(symbol)
     method = escape(method_for(data))
+    anchor = escape(str(data.get("anchor", "")))
     notes = notes or {}
     snapshot_name = snapshot_name or f"{date_str}.json"
 
-    drivers_section = ""
-    if notes.get("drivers"):
-        drivers_section = """
-  <section>
-    <h2>Assumptions &amp; how defensible</h2>
-    <div id="cmp-drivers"></div>
-  </section>
-"""
-
-    peers_section = ""
-    if data.get("peers"):
-        peers_section = """
-  <section>
-    <h2>Peer multiples</h2>
-    <p class="meta">The comparable set the scenario multiples are anchored to.</p>
-    <div id="cmp-peers"></div>
-  </section>
-"""
+    fv_label = f"Fair value{f' · {anchor}' if anchor else ''}"
 
     notes_script = ""
     if notes:
@@ -262,35 +246,36 @@ def render_comps_report(symbol, data, date_str, notes=None, snapshot_name=None):
     <div class="date-badge">{date_str}</div>
   </header>
 
+  <section class="fairvalue-band">
+    <span class="fv-label">{fv_label}</span>
+    <span class="fv-value" id="cmp-fairvalue">…</span>
+  </section>
+  <noscript><p class="meta">This report computes its valuation in the browser;
+  enable JavaScript to see the numbers.</p></noscript>
+
   <section>
-    <h2>Scenario breakdown</h2>
-    <div class="table-scroll">
-      <table>
-        <thead>
-          <tr><th>Scenario</th><th class="num">Prob.</th><th class="num">Blended</th>
-              <th class="num">Core</th><th class="num">Range</th><th class="num">Weighted</th></tr>
-        </thead>
-        <tbody id="cmp-scenario-rows"></tbody>
-        <tfoot>
-          <tr><td colspan="5" class="name">Probability-weighted fair value</td>
-              <td class="num strong" id="cmp-weighted">…</td></tr>
-        </tfoot>
-      </table>
-    </div>
-    <p class="meta" id="cmp-core"></p>
-    <noscript><p class="meta">This report computes its valuation in the browser;
-    enable JavaScript to see the numbers.</p></noscript>
+    <h2>1 · What the peers trade at</h2>
+    <p class="meta">Today's forward multiples for the closest comparable memory
+    makers. These set the reference range — nothing more; they are not multiplied
+    into the price.</p>
+    <div id="cmp-peers"></div>
   </section>
 
   <section>
-    <h2>Implied price by multiple</h2>
-    <p class="meta">Each forward metric times its peer/re-rating multiple, per
-    scenario. EV multiples are bridged to equity with net cash and divided by
-    shares. The blended row equal-weights all four; the core row keeps only the
-    two that anchor best.</p>
-    <div id="cmp-matrix"></div>
+    <h2>2 · Our numbers for {sym}</h2>
+    <p class="meta">For each multiple we take {sym}'s expected {anchor} figure and
+    apply a multiple, chosen using the peer range above as a reference.</p>
+    <div id="cmp-inputs"></div>
   </section>
-{drivers_section}
+
+  <section>
+    <h2>3 · How we get the fair value</h2>
+    <p class="meta">Each multiple gives one implied share price — earnings-based
+    multiples directly, EV-based multiples after adding net cash and dividing by
+    shares. The fair value is simply the average of the four.</p>
+    <div id="cmp-calc"></div>
+  </section>
+
   <section>
     <h2>Key inputs</h2>
     <div class="table-scroll">
@@ -299,17 +284,17 @@ def render_comps_report(symbol, data, date_str, notes=None, snapshot_name=None):
       </table>
     </div>
   </section>
-{peers_section}
+
   <footer class="disclaimer">
     <p><strong>Not investment advice.</strong> A relative valuation is only as
-    good as its forward metric and its peer set — and for a cyclical name the
-    metric can be at a cycle peak. The valuation is computed in your browser from
+    good as its forward figure and its peer set — and for a cyclical name the
+    figure can be at a cycle peak. The valuation is computed in your browser from
     an embedded input snapshot using the <code>comps</code> engine; it is a
     personal modeling exercise, not a recommendation to buy or sell any
     security.</p>
     <p class="meta">{escape(conventions_for(data))}</p>
     <p class="snapshot">This report is a frozen daily snapshot. →
-    <a href="{escape(snapshot_name)}">Inputs, probabilities &amp; evaluation behind this page</a></p>
+    <a href="{escape(snapshot_name)}">Inputs &amp; evaluation behind this page</a></p>
     <p class="gen">Generated {date_str} · daily-val</p>
   </footer>
 </main>
@@ -417,6 +402,16 @@ h2 { font-size: 18px; margin: 36px 0 12px; letter-spacing: -.01em; }
 
 /* Report header */
 .rpt-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+
+/* Fair-value band (comps report headline) */
+.fairvalue-band {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap; margin: 24px 0 8px; padding: 16px 20px;
+  border: 1px solid var(--border); border-radius: 12px; background: var(--panel);
+  box-shadow: var(--shadow);
+}
+.fv-label { color: var(--muted); font-size: 14px; }
+.fv-value { font-weight: 700; font-size: 34px; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
 .meta { color: var(--muted); margin: 6px 0 0; font-size: 14px; }
 .date-badge {
   font-variant-numeric: tabular-nums; font-weight: 600; font-size: 14px;

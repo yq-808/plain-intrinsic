@@ -12,25 +12,12 @@
     "diluted_shares": "1.13B"
   },
   "multiples": ["pe", "ev_ebitda", "pb", "ev_sales"],
-  "core_multiples": ["pe", "ev_ebitda"],
   "scenarios": [
     {
-      "name": "Bear",
-      "probability": 0.25,
-      "fundamentals": { "eps": 75, "ebitda": "105B", "revenue": "150B", "bvps": 150 },
-      "multiples": { "pe": 8, "ev_ebitda": 6, "pb": 2.5, "ev_sales": 3.5 }
-    },
-    {
       "name": "Base",
-      "probability": 0.45,
+      "probability": 1,
       "fundamentals": { "eps": 115, "ebitda": "150B", "revenue": "195B", "bvps": 160 },
       "multiples": { "pe": 10, "ev_ebitda": 8, "pb": 4, "ev_sales": 5 }
-    },
-    {
-      "name": "Bull",
-      "probability": 0.30,
-      "fundamentals": { "eps": 150, "ebitda": "195B", "revenue": "235B", "bvps": 180 },
-      "multiples": { "pe": 15, "ev_ebitda": 12, "pb": 6, "ev_sales": 7 }
     }
   ]
 }

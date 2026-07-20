@@ -57,6 +57,16 @@ h2 { font-size: 18px; margin: 36px 0 12px; letter-spacing: -.01em; }
 
 /* Report header */
 .rpt-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+
+/* Fair-value band (comps report headline) */
+.fairvalue-band {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap; margin: 24px 0 8px; padding: 16px 20px;
+  border: 1px solid var(--border); border-radius: 12px; background: var(--panel);
+  box-shadow: var(--shadow);
+}
+.fv-label { color: var(--muted); font-size: 14px; }
+.fv-value { font-weight: 700; font-size: 34px; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
 .meta { color: var(--muted); margin: 6px 0 0; font-size: 14px; }
 .date-badge {
   font-variant-numeric: tabular-nums; font-weight: 600; font-size: 14px;
