@@ -583,43 +583,55 @@
     return evald;
   }
 
+  // Headline number for a manifest entry, dispatched by method. Comps reports
+  // (input.method === "comps") are valued by the sibling COMPS engine, loaded
+  // alongside this script on the landing page; everything else is a DCF.
+  function intrinsicOf(input) {
+    if (input && input.method === "comps" && global.COMPS) {
+      return global.COMPS.evaluate(input).intrinsic;
+    }
+    return evaluate(input).intrinsic;
+  }
+
+  // Flat list of every report, newest first (date desc; symbol asc for ties).
+  // The list is read from the reports/manifest.json data file at runtime — it
+  // is not hardcoded into the page.
   function renderIndex(entries) {
     var mount = document.getElementById("dcf-index");
     if (!mount) return;
 
-    var bySymbol = {};
-    entries.forEach(function (e) {
-      (bySymbol[e.symbol] = bySymbol[e.symbol] || []).push(e);
-    });
-    Object.keys(bySymbol).forEach(function (sym) {
-      bySymbol[sym].sort(function (a, b) { return a.date < b.date ? 1 : -1; });
-    });
-
     mount.innerHTML = "";
-    if (entries.length === 0) {
+    if (!entries || entries.length === 0) {
       mount.appendChild(el("p", "empty", "No reports yet."));
       return;
     }
 
-    Object.keys(bySymbol).sort().forEach(function (sym) {
-      var section = el("section", "sym-group");
-      section.appendChild(el("h2", null, sym));
-      bySymbol[sym].forEach(function (e) {
-        var a = document.createElement("a");
-        a.className = "report-row";
-        a.href = e.path;
-        a.appendChild(el("span", "rr-date", e.date));
-        a.appendChild(el("span", "rr-method", e.method || ""));
-        var metric = el("span", "rr-metric", "intrinsic ");
-        var b = el("b");
-        try { b.textContent = price(evaluate(e.input).intrinsic); }
-        catch (err) { b.textContent = "—"; }
-        metric.appendChild(b);
-        a.appendChild(metric);
-        section.appendChild(a);
-      });
-      mount.appendChild(section);
+    var sorted = entries.slice().sort(function (a, b) {
+      if (a.date !== b.date) return a.date < b.date ? 1 : -1; // date desc
+      return a.symbol < b.symbol ? -1 : (a.symbol > b.symbol ? 1 : 0); // symbol asc
     });
+
+    var list = el("div", "report-list");
+    sorted.forEach(function (e) {
+      var a = document.createElement("a");
+      a.className = "report-row";
+      a.href = e.path;
+      a.appendChild(el("span", "rr-date", e.date));
+      a.appendChild(el("span", "rr-sym", e.symbol));
+      a.appendChild(el("span", "rr-method", e.method || ""));
+      var metric = el("span", "rr-metric", "fair value ");
+      var b = el("b");
+      // Comps values run four digits — show whole dollars, matching the comps
+      // page; DCF per-share values keep cents.
+      try {
+        var v = intrinsicOf(e.input);
+        b.textContent = (e.input && e.input.method === "comps") ? "$" + Math.round(v) : price(v);
+      } catch (err) { b.textContent = "—"; }
+      metric.appendChild(b);
+      a.appendChild(metric);
+      list.appendChild(a);
+    });
+    mount.appendChild(list);
   }
 
   // ------------------------------------------------------------------ public
@@ -642,6 +654,33 @@
     try { return JSON.parse(node.textContent); } catch (e) { return null; }
   }
 
+  // Load the report list from its data file. Relative to the landing page, the
+  // manifest lives at reports/manifest.json. Falls back to XHR where fetch is
+  // unavailable; an embedded #dcf-manifest (legacy) is honored if present.
+  function loadManifest(cb) {
+    var embedded = readJson("dcf-manifest");
+    if (embedded) { cb(embedded, null); return; }
+    var url = "reports/manifest.json";
+    if (typeof fetch === "function") {
+      fetch(url, { cache: "no-cache" })
+        .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+        .then(function (data) { cb(data, null); })
+        .catch(function (err) { cb(null, err); });
+      return;
+    }
+    try {
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", url, true);
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState !== 4) return;
+        if (xhr.status === 200 || xhr.status === 0) {
+          try { cb(JSON.parse(xhr.responseText), null); } catch (e) { cb(null, e); }
+        } else { cb(null, new Error("HTTP " + xhr.status)); }
+      };
+      xhr.send();
+    } catch (err) { cb(null, err); }
+  }
+
   function boot() {
     var input = readJson("dcf-input");
     if (input) {
@@ -653,10 +692,17 @@
         if (global.console) console.error("DCF report render failed:", err);
       }
     }
-    var manifest = readJson("dcf-manifest");
-    if (manifest) {
-      try { renderIndex(manifest); }
-      catch (err) { if (global.console) console.error("DCF index render failed:", err); }
+    var indexMount = document.getElementById("dcf-index");
+    if (indexMount) {
+      loadManifest(function (entries, err) {
+        if (err) {
+          indexMount.appendChild(el("p", "empty", "Could not load the report list."));
+          if (global.console) console.error("Manifest load failed:", err);
+          return;
+        }
+        try { renderIndex(entries); }
+        catch (e) { if (global.console) console.error("DCF index render failed:", e); }
+      });
     }
   }
 

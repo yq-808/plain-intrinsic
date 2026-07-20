@@ -34,12 +34,35 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 DCF_REF = ROOT / "skills" / "dcf" / "reference"
+COMPS_REF = ROOT / "skills" / "relative-comps" / "reference"
+# Where the generator looks up a symbol's working-draft inputs + notes. The
+# input's own "method" field selects the client-side engine; the reference file
+# can live under either skill's reference tree.
+REF_ROOTS = [DCF_REF, COMPS_REF]
 DOCS = ROOT / "docs"
 REPORTS_DIR = DOCS / "reports"
 MANIFEST = REPORTS_DIR / "manifest.json"
 
-# Site conventions applied by docs/assets/dcf.js (shown on each page).
-CONVENTIONS = "Mid-year discounting convention. Valuation only — no live market price is used."
+# Per-method conventions line (shown on each page + frozen in the snapshot).
+DCF_CONVENTIONS = "Mid-year discounting convention. Valuation only — no live market price is used."
+COMPS_CONVENTIONS = "Peer-multiple relative valuation, probability-weighted across scenarios. Valuation only — no live market price is used."
+
+
+def is_comps(data):
+    return isinstance(data, dict) and data.get("method") == "comps"
+
+
+def conventions_for(data):
+    return COMPS_CONVENTIONS if is_comps(data) else DCF_CONVENTIONS
+
+
+def resolve_ref(kind, symbol):
+    """Find a symbol's <kind>/<SYMBOL>.json across the known reference roots."""
+    for root in REF_ROOTS:
+        path = root / kind / f"{symbol}.json"
+        if path.exists():
+            return path
+    return None
 
 
 # --------------------------------------------------------------------------- #
@@ -53,7 +76,10 @@ def load_json(path):
 
 
 def method_for(data):
-    """Human label for the model type — derivable without running the DCF."""
+    """Human label for the model type — derivable without running the engine."""
+    if is_comps(data):
+        anchor = data.get("anchor")
+        return "Relative valuation — peer multiples" + (f" ({anchor})" if anchor else "")
     if data.get("scenarios"):
         return "DCF — FCFF, probability-weighted scenarios"
     return "DCF — FCFF, single scenario"
@@ -169,7 +195,7 @@ def render_report(symbol, data, date_str, notes=None, snapshot_name=None):
     assumptions. The valuation is computed in your browser from an embedded input
     snapshot using the <code>dcf</code> engine; it is a personal modeling
     exercise, not a recommendation to buy or sell any security.</p>
-    <p class="meta">{escape(CONVENTIONS)}</p>
+    <p class="meta">{escape(conventions_for(data))}</p>
     <p class="snapshot">This report is a frozen daily snapshot. →
     <a href="{escape(snapshot_name)}">Inputs, probabilities &amp; evaluation behind this page</a></p>
     <p class="gen">Generated {date_str} · daily-val</p>
@@ -182,9 +208,123 @@ def render_report(symbol, data, date_str, notes=None, snapshot_name=None):
 """
 
 
+# --------------------------------------------------------------------------- #
+# HTML rendering — relative-valuation (peer multiples) page. Same contract as
+# the DCF page: inputs (+ notes) are embedded; docs/assets/comps.js fills the
+# numbers client-side. Valuation only — no market price.
+# --------------------------------------------------------------------------- #
+def render_comps_report(symbol, data, date_str, notes=None, snapshot_name=None):
+    sym = escape(symbol)
+    method = escape(method_for(data))
+    notes = notes or {}
+    snapshot_name = snapshot_name or f"{date_str}.json"
+
+    drivers_section = ""
+    if notes.get("drivers"):
+        drivers_section = """
+  <section>
+    <h2>Assumptions &amp; how defensible</h2>
+    <div id="cmp-drivers"></div>
+  </section>
+"""
+
+    peers_section = ""
+    if data.get("peers"):
+        peers_section = """
+  <section>
+    <h2>Peer multiples</h2>
+    <p class="meta">The comparable set the scenario multiples are anchored to.</p>
+    <div id="cmp-peers"></div>
+  </section>
+"""
+
+    notes_script = ""
+    if notes:
+        notes_script = f'\n<script type="application/json" id="cmp-notes">{embed_json(notes)}</script>'
+
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{sym} valuation — {date_str} · daily-val</title>
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+<main class="wrap">
+  <p class="crumb"><a href="../../index.html">← All reports</a></p>
+
+  <header class="rpt-head">
+    <div>
+      <h1>{sym} <span class="sub">valuation</span></h1>
+      <p class="meta" id="cmp-method">{method}</p>
+    </div>
+    <div class="date-badge">{date_str}</div>
+  </header>
+
+  <section>
+    <h2>Scenario breakdown</h2>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>Scenario</th><th class="num">Prob.</th><th class="num">Blended</th>
+              <th class="num">Core</th><th class="num">Range</th><th class="num">Weighted</th></tr>
+        </thead>
+        <tbody id="cmp-scenario-rows"></tbody>
+        <tfoot>
+          <tr><td colspan="5" class="name">Probability-weighted fair value</td>
+              <td class="num strong" id="cmp-weighted">…</td></tr>
+        </tfoot>
+      </table>
+    </div>
+    <p class="meta" id="cmp-core"></p>
+    <noscript><p class="meta">This report computes its valuation in the browser;
+    enable JavaScript to see the numbers.</p></noscript>
+  </section>
+
+  <section>
+    <h2>Implied price by multiple</h2>
+    <p class="meta">Each forward metric times its peer/re-rating multiple, per
+    scenario. EV multiples are bridged to equity with net cash and divided by
+    shares. The blended row equal-weights all four; the core row keeps only the
+    two that anchor best.</p>
+    <div id="cmp-matrix"></div>
+  </section>
+{drivers_section}
+  <section>
+    <h2>Key inputs</h2>
+    <div class="table-scroll">
+      <table class="compact">
+        <tbody id="cmp-key-inputs"></tbody>
+      </table>
+    </div>
+  </section>
+{peers_section}
+  <footer class="disclaimer">
+    <p><strong>Not investment advice.</strong> A relative valuation is only as
+    good as its forward metric and its peer set — and for a cyclical name the
+    metric can be at a cycle peak. The valuation is computed in your browser from
+    an embedded input snapshot using the <code>comps</code> engine; it is a
+    personal modeling exercise, not a recommendation to buy or sell any
+    security.</p>
+    <p class="meta">{escape(conventions_for(data))}</p>
+    <p class="snapshot">This report is a frozen daily snapshot. →
+    <a href="{escape(snapshot_name)}">Inputs, probabilities &amp; evaluation behind this page</a></p>
+    <p class="gen">Generated {date_str} · daily-val</p>
+  </footer>
+</main>
+<script type="application/json" id="cmp-input">{embed_json(data)}</script>{notes_script}
+<script src="../../assets/comps.js"></script>
+</body>
+</html>
+"""
+
+
 def render_index(entries):
+    # The report list is NOT embedded here. The page reads it at runtime from
+    # the reports/manifest.json data file and sorts it (date desc) client-side,
+    # so the landing page is a static shell that never hardcodes the list.
     updated = dt.date.today().isoformat()
-    manifest_json = embed_json(entries)
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -204,14 +344,14 @@ def render_index(entries):
 
   <div id="dcf-index"></div>
   <noscript><p class="empty">Enable JavaScript to list reports and their
-  intrinsic values.</p></noscript>
+  fair values.</p></noscript>
 
   <footer class="disclaimer">
     <p><strong>Not investment advice.</strong> These are personal modeling
     exercises, not recommendations. Last built {updated}.</p>
   </footer>
 </main>
-<script type="application/json" id="dcf-manifest">{manifest_json}</script>
+<script src="assets/comps.js"></script>
 <script src="assets/dcf.js"></script>
 </body>
 </html>
@@ -260,7 +400,7 @@ h2 { font-size: 18px; margin: 36px 0 12px; letter-spacing: -.01em; }
 /* Landing */
 .site-head { margin-bottom: 12px; }
 .tagline { color: var(--muted); max-width: 52ch; }
-.sym-group { margin-top: 28px; }
+.report-list { margin-top: 24px; }
 .report-row {
   display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 18px;
   padding: 14px 16px; margin: 8px 0; border: 1px solid var(--border);
@@ -269,7 +409,8 @@ h2 { font-size: 18px; margin: 36px 0 12px; letter-spacing: -.01em; }
 }
 .report-row:hover { text-decoration: none; border-color: var(--accent); }
 .rr-date { font-variant-numeric: tabular-nums; font-weight: 600; min-width: 96px; }
-.rr-method { color: var(--muted); font-size: 13px; flex: 1 1 200px; }
+.rr-sym { font-weight: 700; letter-spacing: .02em; min-width: 52px; }
+.rr-method { color: var(--muted); font-size: 13px; flex: 1 1 180px; }
 .rr-metric { font-size: 14px; color: var(--muted); }
 .rr-metric b { color: var(--text); font-variant-numeric: tabular-nums; }
 .empty { color: var(--muted); }
@@ -289,6 +430,7 @@ table { width: 100%; border-collapse: collapse; font-size: 15px; }
 th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: left; }
 thead th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
 .num { text-align: right; font-variant-numeric: tabular-nums; }
+.muted-cell { color: var(--muted); }
 .name { font-weight: 600; }
 .strong { font-weight: 700; }
 tfoot td { border-top: 2px solid var(--border); border-bottom: none; font-weight: 600; }
@@ -353,14 +495,16 @@ def main():
     symbol = args.symbol.upper()
     date_str = args.date
 
-    input_path = DCF_REF / "inputs" / f"{symbol}.json"
+    input_path = resolve_ref("inputs", symbol)
+    if input_path is None:
+        roots = ", ".join(str((r / "inputs").relative_to(ROOT)) for r in REF_ROOTS)
+        sys.exit(f"Error: no input file for {symbol} under any of: {roots}")
     data = load_json(input_path)
-    if data is None:
-        sys.exit(f"Error: no DCF input file for {symbol} at {input_path}")
 
     # Optional commentary sidecar (drives the assumptions panel + the
     # scenario-probability evaluation).
-    notes = load_json(DCF_REF / "notes" / f"{symbol}.json")
+    notes_path = resolve_ref("notes", symbol)
+    notes = load_json(notes_path) if notes_path else None
 
     out_dir = REPORTS_DIR / symbol.lower()
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -374,7 +518,7 @@ def main():
         "symbol": symbol,
         "date": date_str,
         "generated": dt.datetime.now().isoformat(timespec="seconds"),
-        "conventions": CONVENTIONS,
+        "conventions": conventions_for(data),
         "input": data,
         "notes": notes,
     }
@@ -382,8 +526,10 @@ def main():
     snapshot_file.write_text(json.dumps(snapshot, indent=2))
 
     # 2. Write report page (inputs+notes embedded; math runs in the browser).
+    #    The input's method selects the engine + template.
+    render = render_comps_report if is_comps(data) else render_report
     out_file = out_dir / f"{date_str}.html"
-    out_file.write_text(render_report(symbol, data, date_str, notes, snapshot_name))
+    out_file.write_text(render(symbol, data, date_str, notes, snapshot_name))
 
     # 3. Update manifest + rebuild index + refresh stylesheet.
     entry = {

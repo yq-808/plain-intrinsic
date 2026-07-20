@@ -1,7 +1,23 @@
 # daily-val — project rules
 
-A static site of dated, valuation-only DCF reports: one HTML page per stock, per
+A static site of dated, valuation-only reports: one HTML page per stock, per
 date, published via GitHub Pages from `main` `/docs`.
+
+## Two valuation methods, one pipeline
+
+Each report's input carries a **method**; the generator and the shared landing
+page dispatch on it. Same snapshot rules, same "generator does no math", same
+"valuation only — no market price" for both.
+
+- **DCF** (default, no `method` field) — FCFF, port in `docs/assets/dcf.js`,
+  inputs under `skills/dcf/reference/`. For durable compounders.
+- **Relative comps** (`"method": "comps"`) — peer/re-rating multiples (P/E,
+  EV/EBITDA, P/B, EV/Sales) on a forward metric, port in `docs/assets/comps.js`,
+  inputs under `skills/relative-comps/reference/`. For cyclicals / "new-paradigm"
+  re-ratings where a smooth FCFF stream is a poor fit (e.g. MU).
+
+The generator resolves `<SYM>.json` from either reference root; the input's
+`method` selects the engine, the page template, and the conventions line.
 
 ## Core principle: reports are static daily snapshots
 
@@ -14,10 +30,11 @@ change when the shared reference JSON is later updated.
   inputs (including `scenarios[].probability`) **and** the evaluation notes
   (including the read on the probabilities). The same data is embedded in the
   report HTML so the page is self-contained.
-- `skills/dcf/reference/inputs/<SYM>.json` and `.../notes/<SYM>.json` are
-  **mutable working drafts**. Edit them to prepare the *next* date's report, then
-  run the generator to freeze a new snapshot. Editing them does not — and must
-  not — retroactively alter already-published reports.
+- `skills/<method>/reference/inputs/<SYM>.json` and `.../notes/<SYM>.json`
+  (`<method>` = `dcf` or `relative-comps`) are **mutable working drafts**. Edit
+  them to prepare the *next* date's report, then run the generator to freeze a new
+  snapshot. Editing them does not — and must not — retroactively alter
+  already-published reports.
 
 ### Do / Don't
 - **Do** produce a new report by editing the reference JSON and running
@@ -31,9 +48,14 @@ change when the shared reference JSON is later updated.
 
 ## Conventions
 - The generator does **no** financial math; all valuation runs client-side in
-  `docs/assets/dcf.js` (a port of `skills/dcf/scripts/dcf_calculator.py`), using
-  the mid-year discounting convention.
-- Pages are **valuation only** — never add a live market price.
+  the method's engine — `docs/assets/dcf.js` (port of
+  `skills/dcf/scripts/dcf_calculator.py`, mid-year discounting) or
+  `docs/assets/comps.js` (port of
+  `skills/relative-comps/scripts/comps_calculator.py`, peer multiples). The
+  landing page loads both and headlines each report with its own engine.
+- Pages are **valuation only** — never add a live market price. For comps this
+  means no current price, no upside/%-to-target, and no sell-side price targets;
+  peer *multiples* and forward fundamentals are inputs, not a market price.
 - Each input's evaluation lives in the notes `drivers[]` array; the `probability`
   driver is a first-class input and every probability-weighted report should
   carry an honest read on how good its scenario weights are.

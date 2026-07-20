@@ -40,7 +40,7 @@ h2 { font-size: 18px; margin: 36px 0 12px; letter-spacing: -.01em; }
 /* Landing */
 .site-head { margin-bottom: 12px; }
 .tagline { color: var(--muted); max-width: 52ch; }
-.sym-group { margin-top: 28px; }
+.report-list { margin-top: 24px; }
 .report-row {
   display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 18px;
   padding: 14px 16px; margin: 8px 0; border: 1px solid var(--border);
@@ -49,7 +49,8 @@ h2 { font-size: 18px; margin: 36px 0 12px; letter-spacing: -.01em; }
 }
 .report-row:hover { text-decoration: none; border-color: var(--accent); }
 .rr-date { font-variant-numeric: tabular-nums; font-weight: 600; min-width: 96px; }
-.rr-method { color: var(--muted); font-size: 13px; flex: 1 1 200px; }
+.rr-sym { font-weight: 700; letter-spacing: .02em; min-width: 52px; }
+.rr-method { color: var(--muted); font-size: 13px; flex: 1 1 180px; }
 .rr-metric { font-size: 14px; color: var(--muted); }
 .rr-metric b { color: var(--text); font-variant-numeric: tabular-nums; }
 .empty { color: var(--muted); }
@@ -69,6 +70,7 @@ table { width: 100%; border-collapse: collapse; font-size: 15px; }
 th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: left; }
 thead th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
 .num { text-align: right; font-variant-numeric: tabular-nums; }
+.muted-cell { color: var(--muted); }
 .name { font-weight: 600; }
 .strong { font-weight: 700; }
 tfoot td { border-top: 2px solid var(--border); border-bottom: none; font-weight: 600; }

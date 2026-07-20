@@ -3,9 +3,15 @@
 Dated, back-of-the-envelope **intrinsic-value reports** for stocks — one HTML
 page per stock, per date, published as a static site via GitHub Pages.
 
-Each report is **valuation only** — no market price. The page ships the DCF
-*inputs* and computes the intrinsic value in your browser, so the numbers on the
-page are always a live function of the assumptions it carries.
+Each report is **valuation only** — no market price. The page ships the
+*inputs* and computes the value in your browser, so the numbers on the page are
+always a live function of the assumptions it carries.
+
+Two methods share one pipeline, selected by the input's `method` field: a
+**DCF** (FCFF) for durable compounders, and a **relative comps** model
+(peer/re-rating multiples — P/E, EV/EBITDA, P/B, EV/Sales on a forward metric)
+for cyclicals and "new-paradigm" re-ratings where a smooth cash-flow stream is a
+poor fit (e.g. MU). Both obey the same rules below.
 
 ## Every report is a frozen daily snapshot
 
@@ -33,6 +39,8 @@ daily-val/
 │   │   └── reference/
 │   │       ├── inputs/<SYM>.json   # working-draft inputs (mutable)
 │   │       └── notes/<SYM>.json    # working-draft evaluation notes (mutable)
+│   ├── relative-comps/          # Peer-multiple (comps) valuation skill + engine
+│   │   └── reference/{inputs,notes}/<SYM>.json  # comps working drafts (mutable)
 │   └── megawatt-pe-valuation/   # Earnings × P/E model for power / AI-infra
 ├── scripts/
 │   └── generate_report.py       # freezes a dated snapshot + page, rebuilds the index
@@ -40,7 +48,8 @@ daily-val/
     ├── index.html               # landing page, lists every report by stock & date
     ├── assets/
     │   ├── style.css
-    │   └── dcf.js               # client-side DCF engine (port of the dcf skill)
+    │   ├── dcf.js               # client-side DCF engine (port of the dcf skill)
+    │   └── comps.js             # client-side comps engine (port of relative-comps)
     └── reports/
         ├── manifest.json        # reports + their embedded inputs + snapshot paths
         └── <symbol>/
@@ -61,17 +70,19 @@ python3 scripts/generate_report.py AAPL --date 2026-07-15
 The generator does **no** financial math. Each run freezes the symbol's input
 JSON *and* its evaluation notes into `docs/reports/<symbol>/<date>.json`, embeds
 the same data into `docs/reports/<symbol>/<date>.html`, records the run in
-`docs/reports/manifest.json`, and rebuilds `docs/index.html`. The valuation table
-and the probability-weighted intrinsic value are computed in the browser by
-[`docs/assets/dcf.js`](docs/assets/dcf.js) — a faithful port of the `dcf` skill's
-engine (`skills/dcf/scripts/dcf_calculator.py`). To post a report for a new date,
-run the command again with a new `--date` and commit.
+`docs/reports/manifest.json`, and rebuilds `docs/index.html`. The valuation
+tables and the probability-weighted value are computed in the browser by the
+method's engine — [`docs/assets/dcf.js`](docs/assets/dcf.js) or
+[`docs/assets/comps.js`](docs/assets/comps.js), faithful ports of the matching
+skill's Python engine. To post a report for a new date, run the command again
+with a new `--date` and commit.
 
-The symbol must have an input file at
-`skills/dcf/reference/inputs/<SYMBOL>.json` (GOOGL, MSFT, AAPL are included), and
-optionally an evaluation sidecar at
-`skills/dcf/reference/notes/<SYMBOL>.json`. Refreshing the underlying financials
-uses the skill's own `fetch_*.py` scripts and requires an API key
+The symbol must have an input file under a reference root the generator knows:
+`skills/dcf/reference/inputs/<SYMBOL>.json` (GOOGL, MSFT, AAPL) or
+`skills/relative-comps/reference/inputs/<SYMBOL>.json` (MU), each with an optional
+`notes/<SYMBOL>.json` evaluation sidecar. The input's `method` field (`"comps"`,
+or absent for DCF) selects the engine. Refreshing the underlying financials for
+the DCF skill uses its own `fetch_*.py` scripts and requires an API key
 (`FINNHUB_API_KEY` in a gitignored `.env`).
 
 ## Publishing with GitHub Pages

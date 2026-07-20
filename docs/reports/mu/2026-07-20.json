@@ -1,0 +1,163 @@
+{
+  "symbol": "MU",
+  "date": "2026-07-20",
+  "generated": "2026-07-20T15:13:29",
+  "conventions": "Peer-multiple relative valuation, probability-weighted across scenarios. Valuation only \u2014 no live market price is used.",
+  "input": {
+    "symbol": "MU",
+    "method": "comps",
+    "anchor": "FY2027",
+    "peer_group": "Legacy memory (SK Hynix, Samsung)",
+    "peers": [
+      {
+        "name": "SK Hynix",
+        "pe": 5.4,
+        "ev_ebitda": 7.7,
+        "pb": 3.5,
+        "ev_sales": 6.1
+      },
+      {
+        "name": "Samsung",
+        "pe": 4.9,
+        "ev_ebitda": 8.6,
+        "pb": 2.0,
+        "ev_sales": 4.0
+      }
+    ],
+    "balance_sheet": {
+      "net_cash": "25B",
+      "diluted_shares": "1.13B"
+    },
+    "multiples": [
+      "pe",
+      "ev_ebitda",
+      "pb",
+      "ev_sales"
+    ],
+    "core_multiples": [
+      "pe",
+      "ev_ebitda"
+    ],
+    "scenarios": [
+      {
+        "name": "Bear",
+        "probability": 0.25,
+        "fundamentals": {
+          "eps": 75,
+          "ebitda": "105B",
+          "revenue": "150B",
+          "bvps": 150
+        },
+        "multiples": {
+          "pe": 8,
+          "ev_ebitda": 6,
+          "pb": 2.5,
+          "ev_sales": 3.5
+        }
+      },
+      {
+        "name": "Base",
+        "probability": 0.45,
+        "fundamentals": {
+          "eps": 115,
+          "ebitda": "150B",
+          "revenue": "195B",
+          "bvps": 160
+        },
+        "multiples": {
+          "pe": 10,
+          "ev_ebitda": 8,
+          "pb": 4,
+          "ev_sales": 5
+        }
+      },
+      {
+        "name": "Bull",
+        "probability": 0.3,
+        "fundamentals": {
+          "eps": 150,
+          "ebitda": "195B",
+          "revenue": "235B",
+          "bvps": 180
+        },
+        "multiples": {
+          "pe": 15,
+          "ev_ebitda": 12,
+          "pb": 6,
+          "ev_sales": 7
+        }
+      }
+    ]
+  },
+  "notes": {
+    "symbol": "MU",
+    "drivers": [
+      {
+        "key": "eps",
+        "label": "FY2027 EPS",
+        "verdict": "Consensus badly split",
+        "comment": "This is the swing factor for the whole valuation, and the Street does not agree with itself. Post-Q3'26, the newer S&P Global / StockAnalysis cut runs FY2027 EPS ~$150 while the older LSEG/MarketScreener cut sits near ~$98, with a June S&P research note at ~$112. Base $115 sits deliberately in the conservative middle; Bull $150 takes the high consensus at face value; Bear $75 assumes the HBM supercycle rolls over before FY2027 prints. The multiples are peer-anchored and stable \u2014 it is this denominator, not the multiple, that decides the answer."
+      },
+      {
+        "key": "ebitda",
+        "label": "FY2027 EBITDA",
+        "verdict": "Tracks EPS; margin at cycle peak",
+        "comment": "~70% (Bear) to ~83% (Bull) EBITDA margin on the revenue line \u2014 extraordinary, and only defensible at a memory up-cycle peak with HBM sold out and DRAM/NAND in structural shortage. These are peak-cycle, not mid-cycle, figures; that is the point of a relative-valuation snapshot for a cyclical, but it also means the EV/EBITDA read inherits full cyclical risk."
+      },
+      {
+        "key": "revenue",
+        "label": "FY2027 revenue",
+        "verdict": "Wide but bracketed",
+        "comment": "$150B (Bear) to $235B (Bull) spans the published FY2027 revenue consensus range (~$169B older cut to ~$234B newer cut). Base $195B is mid-range. HBM is ~2026 sold out with multi-year agreements extending into 2027\u201328, which underpins the near term; the risk is entirely on 2028+ supply coming back."
+      },
+      {
+        "key": "bvps",
+        "label": "FY2027 book value / share",
+        "verdict": "Inflates fast \u2014 see P/B caveat",
+        "comment": "Book value per share climbs quickly as huge retained earnings pile up ($150 \u2192 $180 across scenarios). That mechanically drags the P/B-implied price down and is exactly why P/B is the weakest anchor here \u2014 see the P/B multiple note."
+      },
+      {
+        "key": "mult_pe",
+        "label": "P/E multiple",
+        "verdict": "Premium to peers, justified in part",
+        "comment": "8\u00d7 (Bear) / 10\u00d7 (Base) / 15\u00d7 (Bull) sits above the SK Hynix ~5.4\u00d7 / Samsung ~4.9\u00d7 legacy-memory anchor. HSBC documents a ~35% average MU premium to SK Hynix over 13 years for real reasons \u2014 US listing / investor access, friendlier capital return, higher beta on a smaller earnings base. Base 10\u00d7 embeds a modest re-rating toward an 'AI-infrastructure' frame; Bull 15\u00d7 matches the last cycle top."
+      },
+      {
+        "key": "mult_ev_ebitda",
+        "label": "EV/EBITDA multiple",
+        "verdict": "Anchored to peers + own history",
+        "comment": "6\u00d7 (Bear) / 8\u00d7 (Base) / 12\u00d7 (Bull) brackets the peer set (SK Hynix ~7.7\u00d7, Samsung ~8.6\u00d7) and MU's own 13-year median of ~6.8\u00d7. Bear returns to the historical mid; Bull assumes a full 'new-paradigm' re-rate. This and P/E are the two core anchors \u2014 least distorted by the balance sheet."
+      },
+      {
+        "key": "mult_pb",
+        "label": "P/B multiple",
+        "verdict": "Downside reference only",
+        "comment": "2.5\u00d7 / 4\u00d7 / 6\u00d7 against SK Hynix ~3.5\u00d7 and Samsung ~2.0\u00d7 (a diversified conglomerate, so not clean). P/B is memory's classic trough tool, but here MU's ROE is ~60% vs Samsung ~19%, so a flat peer P/B systematically under-values it \u2014 high ROE earns a higher P/B. Treat the P/B row as a floor / downside reference, not a fair value; the headline equal-weights it in for conservatism, and the 'core' cross-check drops it."
+      },
+      {
+        "key": "mult_ev_sales",
+        "label": "EV/Sales multiple",
+        "verdict": "Sanity check, not an anchor",
+        "comment": "3.5\u00d7 / 5\u00d7 / 7\u00d7 vs peers ~4.0\u20136.1\u00d7. EV/Sales ignores the enormous margin differences between up- and down-cycle, so it is a coarse sanity check rather than a primary anchor \u2014 included in the blend but not in the core."
+      },
+      {
+        "key": "net_cash",
+        "label": "Net cash (cash \u2212 debt)",
+        "verdict": "Conservative",
+        "comment": "~$25B net cash (cash + investments ~$30B less debt ~$5.7B post-upgrade to BBB+). Used flat across scenarios in the EV\u2192equity bridge. It is deliberately conservative: FY2027 free cash flow (consensus ~$70B) would build net cash far above this, but much of it is earmarked for buybacks, which cut both net cash and the share count \u2014 so leaving it flat is the honest simplification."
+      },
+      {
+        "key": "shares",
+        "label": "Diluted shares",
+        "verdict": "Flat ~1.13B",
+        "comment": "~1.13B diluted shares, held flat. Buybacks would trim this over time (mildly accretive), but pinning it avoids double-counting against the flat net-cash assumption above."
+      },
+      {
+        "key": "probability",
+        "label": "Scenario probability",
+        "verdict": "Downside-aware, not supercycle-certain",
+        "comment": "Bear 25 / Base 45 / Bull 30. The weighting deliberately carries real cyclical downside risk \u2014 memory has repeatedly given back peak earnings once supply catches up (revenue fell ~40% into 2023), and multiple analysts still question MU's moat and note recent DRAM/NAND share slippage. The 30% Bull acknowledges genuine HBM momentum and sold-out capacity without treating a multi-year supercycle as the base rate. The blended weighted fair value (~$1,068) lands just above the Base case; the honest read is that this is a fairly-valued-to-modestly-cheap name with a very wide, cycle-dependent distribution, not a high-conviction point estimate."
+      }
+    ]
+  }
+}
